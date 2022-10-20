@@ -1,9 +1,19 @@
 import {Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import React from "react";
 
-import {rows} from "./Database";
+class StatisticField {
+    constructor(name, value) {
+        this.name = name;
+        this.value = value;
+    }
+}
 
-export default function Statistic() {
+const statistics = [
+    new StatisticField("Популярнейший город", "Москва"),
+    new StatisticField("Редчайший город", "Таганрог")
+]
+
+export default function Statistic(props) {
     return (
         <Box>
             <TableContainer component={Paper}>
@@ -11,19 +21,17 @@ export default function Statistic() {
                     <TableHead>
                         <TableRow>
                             <TableCell>Статистика</TableCell>
-                            <TableCell align="right">Штук</TableCell>
+                            <TableCell align="right"/>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.map(row => (
-                            <TableRow
-                                key={row.name}
-                                sx={{'&:last-child td, &:last-child th': {border: 0}}}
-                            >
+                        {statistics.map(statistic => (
+                            <TableRow key={statistic.name}
+                                      sx={{'&:last-child td, &:last-child th': {border: 0}}}>
                                 <TableCell component="th" scope="row">
-                                    {row.name}
+                                    {statistic.name}
                                 </TableCell>
-                                <TableCell align="right">{row.calories}</TableCell>
+                                <TableCell align="right">{statistic.value}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
