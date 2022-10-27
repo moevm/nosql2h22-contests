@@ -43,74 +43,93 @@ export default function Database() {
             name: 'DateOfStart',
             options: {
                 filter: true,
+                filterType: 'custom',
+
+                // if the below value is set, these values will be used every time the table is rendered.
+                // it's best to let the table internally manage the filterList
+                //filterList: [25, 50],
+
                 customFilterListOptions: {
-                    render: v => v.toLowerCase()
+                    render: v => {
+                        if (v[0] && v[1] && ageFilterChecked) {
+                            return [`Min Age: ${v[0]}`, `Max Age: ${v[1]}`];
+                        } else if (v[0] && v[1] && !ageFilterChecked) {
+                            return `Min Age: ${v[0]}, Max Age: ${v[1]}`;
+                        } else if (v[0]) {
+                            return `Min Age: ${v[0]}`;
+                        } else if (v[1]) {
+                            return `Max Age: ${v[1]}`;
+                        }
+                        return [];
+                    },
+                    update: (filterList, filterPos, index) => {
+                        console.log('customFilterListOnDelete: ', filterList, filterPos, index);
+
+                        if (filterPos === 0) {
+                            filterList[index].splice(filterPos, 1, '');
+                        } else if (filterPos === 1) {
+                            filterList[index].splice(filterPos, 1);
+                        } else if (filterPos === -1) {
+                            filterList[index] = [];
+                        }
+
+                        return filterList;
+                    },
                 },
+                filterOptions: {
+                    names: [],
+                    logic(age, filters) {
+                        if (filters[0] && filters[1]) {
+                            return age < filters[0] || age > filters[1];
+                        } else if (filters[0]) {
+                            return age < filters[0];
+                        } else if (filters[1]) {
+                            return age > filters[1];
+                        }
+                        return false;
+                    },
+                    display: (filterList, onChange, index, column) => (
+                        <div>
+                            <FormLabel>{column.label}</FormLabel>
+                            <FormGroup row>
+                                <TextField
+                                    label='min'
+                                    value={filterList[index][0] || ''}
+                                    onChange={event => {
+                                        filterList[index][0] = event.target.value;
+                                        onChange(filterList[index], index, column);
+                                    }}
+                                    style={{width: '45%', marginRight: '5%'}}
+                                />
+                                <TextField
+                                    label='max'
+                                    value={filterList[index][1] || ''}
+                                    onChange={event => {
+                                        filterList[index][1] = event.target.value;
+                                        onChange(filterList[index], index, column);
+                                    }}
+                                    style={{width: '45%'}}
+                                />
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={ageFilterChecked}
+                                            onChange={event => setAgeFilterChecked(event.target.checked)}
+                                        />
+                                    }
+                                    label='Separate Values'
+                                    style={{marginLeft: '0px'}}
+                                />
+                            </FormGroup>
+                        </div>
+                    ),
+                },
+                print: false,
             },
         },
         {
             label: 'Дата окончания',
             name: 'DateOfEnd',
-            options: {
-                filter: true,
-                customFilterListOptions: {
-                    render: v => v.toLowerCase()
-                },
-            },
-        },
-        {
-            label: 'Место проведения',
-            name: 'Location',
-            options: {
-                filter: true,
-                display: 'true',
-                filterType: 'custom',
-                customFilterListOptions: {
-                    render: v => v.map(l => l.toUpperCase()),
-                    update: (filterList, filterPos, index) => {
-                        console.log('update');
-                        console.log(filterList, filterPos, index);
-                        filterList[index].splice(filterPos, 1);
-                        return filterList;
-                    }
-                },
-                filterOptions: {
-                    logic: (location, filters, row) => {
-                        return filters.length ? !filters.includes(location) : false;
-                    },
-                    display: (filterList, onChange, index, column) => {
-                        const optionValues = ['Москва', 'Санкт-Петербург', 'Таганрог'];
-                        return (
-                            <FormControl>
-                                <InputLabel htmlFor='select-multiple-chip'>
-                                    {column.label}
-                                </InputLabel>
-                                <Select multiple
-                                        value={filterList[index]}
-                                        renderValue={selected => selected.join(', ')}
-                                        onChange={event => {
-                                            filterList[index] = event.target.value;
-                                            onChange(filterList[index], index, column);
-                                        }}>
-                                    {optionValues.map(item => (
-                                        <MenuItem key={item} value={item}>
-                                            <Checkbox
-                                                color='primary'
-                                                checked={filterList[index].indexOf(item) > -1}
-                                            />
-                                            <ListItemText primary={item}/>
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        );
-                    }
-                }
-            }
-        },
-        {
-            label: 'Сфера',
-            name: 'TargetKnowledge',
             options: {
                 filter: true,
                 filterType: 'custom',
@@ -196,6 +215,106 @@ export default function Database() {
                 },
                 print: false,
             },
+        },
+        {
+            label: 'Место проведения',
+            name: 'Location',
+            options: {
+                filter: true,
+                display: 'true',
+                filterType: 'custom',
+                customFilterListOptions: {
+                    render: v => v.map(l => l.toUpperCase()),
+                    update: (filterList, filterPos, index) => {
+                        console.log('update');
+                        console.log(filterList, filterPos, index);
+                        filterList[index].splice(filterPos, 1);
+                        return filterList;
+                    }
+                },
+                filterOptions: {
+                    logic: (location, filters, row) => {
+                        return filters.length ? !filters.includes(location) : false;
+                    },
+                    display: (filterList, onChange, index, column) => {
+                        const optionValues = ['Москва', 'Санкт-Петербург', 'Таганрог'];
+                        return (
+                            <FormControl>
+                                <InputLabel htmlFor='select-multiple-chip'>
+                                    {column.label}
+                                </InputLabel>
+                                <Select multiple
+                                        value={filterList[index]}
+                                        renderValue={selected => selected.join(', ')}
+                                        onChange={event => {
+                                            filterList[index] = event.target.value;
+                                            onChange(filterList[index], index, column);
+                                        }}>
+                                    {optionValues.map(item => (
+                                        <MenuItem key={item} value={item}>
+                                            <Checkbox
+                                                color='primary'
+                                                checked={filterList[index].indexOf(item) > -1}
+                                            />
+                                            <ListItemText primary={item}/>
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        );
+                    }
+                }
+            }
+        },
+        {
+            label: 'Сфера',
+            name: 'TargetKnowledge',
+            options: {
+                filter: true,
+                display: 'true',
+                filterType: 'custom',
+                customFilterListOptions: {
+                    render: v => v.map(l => l.toUpperCase()),
+                    update: (filterList, filterPos, index) => {
+                        console.log('update');
+                        console.log(filterList, filterPos, index);
+                        filterList[index].splice(filterPos, 1);
+                        return filterList;
+                    }
+                },
+                filterOptions: {
+                    logic: (location, filters, row) => {
+                        return filters.length ? !filters.includes(location) : false;
+                    },
+                    display: (filterList, onChange, index, column) => {
+                        const optionValues = ['Москва', 'Санкт-Петербург', 'Таганрог'];
+                        return (
+                            <FormControl>
+                                <InputLabel htmlFor='select-multiple-chip'>
+                                    {column.label}
+                                </InputLabel>
+                                <Select multiple
+                                        value={filterList[index]}
+                                        renderValue={selected => selected.join(', ')}
+                                        onChange={event => {
+                                            filterList[index] = event.target.value;
+                                            onChange(filterList[index], index, column);
+                                        }}>
+                                    {optionValues.map(item => (
+                                        <MenuItem key={item} value={item}>
+                                            <Checkbox
+                                                color='primary'
+                                                checked={filterList[index].indexOf(item) > -1}
+                                            />
+                                            <ListItemText primary={item}/>
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        );
+                    }
+                }
+            }
         },
         {
             label: 'Статус',

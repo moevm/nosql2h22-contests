@@ -59,7 +59,6 @@ export default function Home() {
         });
     }
 
-
     return (
         <div className="App">
             <Box sx={{width: 1200, maxWidth: '80%', margin: "auto"}} className="Upload">
