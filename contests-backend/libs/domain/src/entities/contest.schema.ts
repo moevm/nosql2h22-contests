@@ -5,8 +5,8 @@ export type ContestDocument = Contest & Document;
 
 @Schema()
 export class Contest {
-  @Prop()
-  name: string;
+    @Prop()
+    name: string;
 }
 
 export const ContestSchema = SchemaFactory.createForClass(Contest);
