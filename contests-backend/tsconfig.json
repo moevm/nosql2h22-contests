@@ -19,17 +19,14 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@libs/domain": [
-        "libs/domain/src"
-      ],
-      "@libs/domain/*": [
-        "libs/domain/src/*"
+        "libs/domain/src",
       ],
       "@lib/services": [
         "libs/services/src"
       ],
-      "@lib/services/*": [
-        "libs/services/src/*"
-      ]
+      "@libs/nlp-parsing": [
+        "libs/nlp-parsing/src"
+      ],
     }
   }
 }

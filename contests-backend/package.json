@@ -25,7 +25,10 @@
     "@nestjs/core": "^9.0.0",
     "@nestjs/mongoose": "^9.2.0",
     "@nestjs/platform-express": "^9.0.0",
+    "axios": "^1.2.0",
     "mongoose": "^6.6.3",
+    "natural": "^5.2.3",
+    "puppeteer": "^19.3.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0"
@@ -75,7 +78,8 @@
     ],
     "moduleNameMapper": {
       "^@libs/domain(|/.*)$": "<rootDir>/libs/domain/src/$1",
-      "^@lib/services(|/.*)$": "<rootDir>/libs/services/src/$1"
+      "^@libs/services(|/.*)$": "<rootDir>/libs/services/src/$1",
+      "^@libs/nlp-parsing(|/.*)$": "<rootDir>/libs/nlp-parsing/src/$1"
     }
   }
 }

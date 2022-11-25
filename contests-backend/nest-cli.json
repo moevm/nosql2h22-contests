@@ -24,6 +24,33 @@
       "compilerOptions": {
         "tsConfigPath": "apps/contests-backend/tsconfig.app.json"
       }
+    },
+    "domain": {
+      "type": "library",
+      "root": "libs/domain",
+      "entryFile": "index",
+      "sourceRoot": "libs/domain/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/domain/tsconfig.lib.json"
+      }
+    },
+    "services": {
+      "type": "library",
+      "root": "libs/services",
+      "entryFile": "index",
+      "sourceRoot": "libs/services/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/services/tsconfig.lib.json"
+      }
+    },
+    "nlp-parsing": {
+      "type": "library",
+      "root": "libs/nlp-parsing",
+      "entryFile": "index",
+      "sourceRoot": "libs/nlp-parsing/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/nlp-parsing/tsconfig.lib.json"
+      }
     }
   }
 }
