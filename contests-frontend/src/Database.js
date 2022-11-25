@@ -1,128 +1,356 @@
 import React from "react";
+
+import MUIDataTable from "mui-datatables";
+
 import {
     Box,
-    Button,
+    Checkbox,
     FormControl,
+    FormControlLabel,
+    FormGroup,
+    FormLabel,
     InputLabel,
+    ListItemText,
     MenuItem,
-    Paper,
     Select,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
     TextField
 } from "@mui/material";
-
 import Statistic from "./Statistic";
 
-export function createData(name, calories, fat, carbs, protein) {
-    return {name, calories, fat, carbs, protein};
-}
-
-export const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Cupcake', 305, 3.7, 67, 4.3),
-    createData('Gingerbread', 356, 16.0, 49, 3.9),
+export const data = [
+    ['Московская олимпиада по математике', '2022.12.12', '2022.12.15', 'Москва', 'Математика', 'Предстоит'],
+    ['Московская олимпиада по математике', '2022.12.12', '2022.12.15', 'Москва', 'Математика', 'Завершен'],
+    ['Олимпиада по русскому языку', '2022.12.12', '2022.12.15', 'Таганрог', 'Русский язык', 'Идёт'],
 ];
 
 export default function Database() {
-    const [field, setField] = React.useState('');
-    const [comparator, setComparator] = React.useState('');
-    const [target, setTarget] = React.useState('');
+    const [ageFilterChecked, setAgeFilterChecked] = React.useState(false);
 
-    const handleChangeField = (event) => {
-        setField(event.target.value);
-    }
+    const columns = [
+        {
+            label: 'Название конкурса',
+            name: 'Name',
+            options: {
+                filter: true,
+                filterOptions: {
+                    renderValue: v => v ? v.replace(/^(\w).* (.*)$/, '$1. $2') : ''
+                },
+                filterType: 'dropdown'
+            },
+        },
+        {
+            label: 'Дата начала',
+            name: 'DateOfStart',
+            options: {
+                filter: true,
+                filterType: 'custom',
 
-    const handleChangeComparator = (event) => {
-        setComparator(event.target.value);
-    }
+                // if the below value is set, these values will be used every time the table is rendered.
+                // it's best to let the table internally manage the filterList
+                //filterList: [25, 50],
 
-    const handleChangeTarget = (event) => {
-        setTarget(event.target.value);
-    }
+                customFilterListOptions: {
+                    render: v => {
+                        if (v[0] && v[1] && ageFilterChecked) {
+                            return [`Min Age: ${v[0]}`, `Max Age: ${v[1]}`];
+                        } else if (v[0] && v[1] && !ageFilterChecked) {
+                            return `Min Age: ${v[0]}, Max Age: ${v[1]}`;
+                        } else if (v[0]) {
+                            return `Min Age: ${v[0]}`;
+                        } else if (v[1]) {
+                            return `Max Age: ${v[1]}`;
+                        }
+                        return [];
+                    },
+                    update: (filterList, filterPos, index) => {
+                        console.log('customFilterListOnDelete: ', filterList, filterPos, index);
+
+                        if (filterPos === 0) {
+                            filterList[index].splice(filterPos, 1, '');
+                        } else if (filterPos === 1) {
+                            filterList[index].splice(filterPos, 1);
+                        } else if (filterPos === -1) {
+                            filterList[index] = [];
+                        }
+
+                        return filterList;
+                    },
+                },
+                filterOptions: {
+                    names: [],
+                    logic(age, filters) {
+                        if (filters[0] && filters[1]) {
+                            return age < filters[0] || age > filters[1];
+                        } else if (filters[0]) {
+                            return age < filters[0];
+                        } else if (filters[1]) {
+                            return age > filters[1];
+                        }
+                        return false;
+                    },
+                    display: (filterList, onChange, index, column) => (
+                        <div>
+                            <FormLabel>{column.label}</FormLabel>
+                            <FormGroup row>
+                                <TextField
+                                    label='min'
+                                    value={filterList[index][0] || ''}
+                                    onChange={event => {
+                                        filterList[index][0] = event.target.value;
+                                        onChange(filterList[index], index, column);
+                                    }}
+                                    style={{width: '45%', marginRight: '5%'}}
+                                />
+                                <TextField
+                                    label='max'
+                                    value={filterList[index][1] || ''}
+                                    onChange={event => {
+                                        filterList[index][1] = event.target.value;
+                                        onChange(filterList[index], index, column);
+                                    }}
+                                    style={{width: '45%'}}
+                                />
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={ageFilterChecked}
+                                            onChange={event => setAgeFilterChecked(event.target.checked)}
+                                        />
+                                    }
+                                    label='Separate Values'
+                                    style={{marginLeft: '0px'}}
+                                />
+                            </FormGroup>
+                        </div>
+                    ),
+                },
+                print: false,
+            },
+        },
+        {
+            label: 'Дата окончания',
+            name: 'DateOfEnd',
+            options: {
+                filter: true,
+                filterType: 'custom',
+
+                // if the below value is set, these values will be used every time the table is rendered.
+                // it's best to let the table internally manage the filterList
+                //filterList: [25, 50],
+
+                customFilterListOptions: {
+                    render: v => {
+                        if (v[0] && v[1] && ageFilterChecked) {
+                            return [`Min Age: ${v[0]}`, `Max Age: ${v[1]}`];
+                        } else if (v[0] && v[1] && !ageFilterChecked) {
+                            return `Min Age: ${v[0]}, Max Age: ${v[1]}`;
+                        } else if (v[0]) {
+                            return `Min Age: ${v[0]}`;
+                        } else if (v[1]) {
+                            return `Max Age: ${v[1]}`;
+                        }
+                        return [];
+                    },
+                    update: (filterList, filterPos, index) => {
+                        console.log('customFilterListOnDelete: ', filterList, filterPos, index);
+
+                        if (filterPos === 0) {
+                            filterList[index].splice(filterPos, 1, '');
+                        } else if (filterPos === 1) {
+                            filterList[index].splice(filterPos, 1);
+                        } else if (filterPos === -1) {
+                            filterList[index] = [];
+                        }
+
+                        return filterList;
+                    },
+                },
+                filterOptions: {
+                    names: [],
+                    logic(age, filters) {
+                        if (filters[0] && filters[1]) {
+                            return age < filters[0] || age > filters[1];
+                        } else if (filters[0]) {
+                            return age < filters[0];
+                        } else if (filters[1]) {
+                            return age > filters[1];
+                        }
+                        return false;
+                    },
+                    display: (filterList, onChange, index, column) => (
+                        <div>
+                            <FormLabel>{column.label}</FormLabel>
+                            <FormGroup row>
+                                <TextField
+                                    label='min'
+                                    value={filterList[index][0] || ''}
+                                    onChange={event => {
+                                        filterList[index][0] = event.target.value;
+                                        onChange(filterList[index], index, column);
+                                    }}
+                                    style={{width: '45%', marginRight: '5%'}}
+                                />
+                                <TextField
+                                    label='max'
+                                    value={filterList[index][1] || ''}
+                                    onChange={event => {
+                                        filterList[index][1] = event.target.value;
+                                        onChange(filterList[index], index, column);
+                                    }}
+                                    style={{width: '45%'}}
+                                />
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={ageFilterChecked}
+                                            onChange={event => setAgeFilterChecked(event.target.checked)}
+                                        />
+                                    }
+                                    label='Separate Values'
+                                    style={{marginLeft: '0px'}}
+                                />
+                            </FormGroup>
+                        </div>
+                    ),
+                },
+                print: false,
+            },
+        },
+        {
+            label: 'Место проведения',
+            name: 'Location',
+            options: {
+                filter: true,
+                display: 'true',
+                filterType: 'custom',
+                customFilterListOptions: {
+                    render: v => v.map(l => l.toUpperCase()),
+                    update: (filterList, filterPos, index) => {
+                        console.log('update');
+                        console.log(filterList, filterPos, index);
+                        filterList[index].splice(filterPos, 1);
+                        return filterList;
+                    }
+                },
+                filterOptions: {
+                    logic: (location, filters, row) => {
+                        return filters.length ? !filters.includes(location) : false;
+                    },
+                    display: (filterList, onChange, index, column) => {
+                        const optionValues = ['Москва', 'Санкт-Петербург', 'Таганрог'];
+                        return (
+                            <FormControl>
+                                <InputLabel htmlFor='select-multiple-chip'>
+                                    {column.label}
+                                </InputLabel>
+                                <Select multiple
+                                        value={filterList[index]}
+                                        renderValue={selected => selected.join(', ')}
+                                        onChange={event => {
+                                            filterList[index] = event.target.value;
+                                            onChange(filterList[index], index, column);
+                                        }}>
+                                    {optionValues.map(item => (
+                                        <MenuItem key={item} value={item}>
+                                            <Checkbox
+                                                color='primary'
+                                                checked={filterList[index].indexOf(item) > -1}
+                                            />
+                                            <ListItemText primary={item}/>
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        );
+                    }
+                }
+            }
+        },
+        {
+            label: 'Сфера',
+            name: 'TargetKnowledge',
+            options: {
+                filter: true,
+                display: 'true',
+                filterType: 'custom',
+                customFilterListOptions: {
+                    render: v => v.map(l => l.toUpperCase()),
+                    update: (filterList, filterPos, index) => {
+                        console.log('update');
+                        console.log(filterList, filterPos, index);
+                        filterList[index].splice(filterPos, 1);
+                        return filterList;
+                    }
+                },
+                filterOptions: {
+                    logic: (location, filters, row) => {
+                        return filters.length ? !filters.includes(location) : false;
+                    },
+                    display: (filterList, onChange, index, column) => {
+                        const optionValues = ['Москва', 'Санкт-Петербург', 'Таганрог'];
+                        return (
+                            <FormControl>
+                                <InputLabel htmlFor='select-multiple-chip'>
+                                    {column.label}
+                                </InputLabel>
+                                <Select multiple
+                                        value={filterList[index]}
+                                        renderValue={selected => selected.join(', ')}
+                                        onChange={event => {
+                                            filterList[index] = event.target.value;
+                                            onChange(filterList[index], index, column);
+                                        }}>
+                                    {optionValues.map(item => (
+                                        <MenuItem key={item} value={item}>
+                                            <Checkbox
+                                                color='primary'
+                                                checked={filterList[index].indexOf(item) > -1}
+                                            />
+                                            <ListItemText primary={item}/>
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        );
+                    }
+                }
+            }
+        },
+        {
+            label: 'Статус',
+            name: 'Status',
+            options: {
+                filter: true,
+                filterType: 'checkbox',
+                filterOptions: {
+                    names: ['Предстоит', 'Завершен', 'Идёт'],
+                    logic(status, filterVal) {
+                        return status === filterVal;
+                    },
+                },
+                sort: false,
+            },
+        },
+    ];
+
+    const options = {
+        filter: true,
+        filterType: 'multiselect',
+        responsive: 'standard',
+        setFilterChipProps: (colIndex, colName, data) => {
+            return {
+                color: 'primary',
+                variant: 'outlined',
+                className: 'testClass123',
+            };
+        }
+    };
 
     return (
-        <div className="Database">
-            <Box sx={{width: 800, maxWidth: '80%', margin: "auto"}} className="Upload">
-                <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">Атрибут</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={field}
-                        label="Age"
-                        onChange={handleChangeField}
-                    >
-                        <MenuItem value={10}>Дата начала</MenuItem>
-                        <MenuItem value={20}>Кол-во мест</MenuItem>
-                        <MenuItem value={30}>Месторасположение</MenuItem>
-                    </Select>
-                </FormControl>
-                <p/>
-                <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">Сравнение</InputLabel>
-                    <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={comparator}
-                        label="Age"
-                        onChange={handleChangeComparator}
-                    >
-                        <MenuItem value={10}>Больше</MenuItem>
-                        <MenuItem value={20}>Меньше</MenuItem>
-                        <MenuItem value={30}>Равно</MenuItem>
-                    </Select>
-                </FormControl>
-                <p/>
-                <TextField fullWidth id="standard-basic" label="Чем" variant="outlined" onChange={handleChangeTarget}/>
-                <p/>
-                <Box sx={{maxWidth: '100%', margin: "auto"}} className="Filter">
-                    <Button variant="contained">Отфильтровать</Button>
-                </Box>
-                <p/>
-                <TextField fullWidth id="standard-basic" label="Поиск по имени" variant="outlined"
-                           onChange={handleChangeTarget}/>
-                <p/>
-                <TableContainer component={Paper}>
-                    <Table sx={{minWidth: 650}} aria-label="simple table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Dessert (100g serving)</TableCell>
-                                <TableCell align="right">Calories</TableCell>
-                                <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                                <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-                                <TableCell align="right">Protein&nbsp;(g)</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {rows.map(row => (
-                                <TableRow
-                                    key={row.name}
-                                    sx={{'&:last-child td, &:last-child th': {border: 0}}}
-                                >
-                                    <TableCell component="th" scope="row">
-                                        {row.name}
-                                    </TableCell>
-                                    <TableCell align="right">{row.calories}</TableCell>
-                                    <TableCell align="right">{row.fat}</TableCell>
-                                    <TableCell align="right">{row.carbs}</TableCell>
-                                    <TableCell align="right">{row.protein}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                <p/>
-                <Button variant="contained">Экспортировать данные</Button>
-                <p/>
-                <Statistic/>
-            </Box>
-        </div>
+        <Box sx={{width: 1200, maxWidth: '80%', margin: "auto"}} className="Upload">
+            <MUIDataTable title={'Contests'} data={data} columns={columns} options={options}/>
+            <p/>
+            <Statistic columns={columns}/>
+        </Box>
     );
 }
