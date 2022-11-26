@@ -1,18 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Contest, ContestDocument } from '@libs/domain';
+import { NlpParsingService, ParsedContent } from '@libs/nlp-parsing';
 
 @Injectable()
 export class ContestService {
     constructor(
-        @InjectModel(Contest.name) private contestModel: Model<ContestDocument>,
+        @InjectModel(Contest.name, 'contests')
+        private contestModel: Model<ContestDocument>,
+        @Inject(NlpParsingService)
+        private readonly nlpParsingService: NlpParsingService,
     ) {}
-
-    async create(createCatDto): Promise<Contest> {
-        const createdContest = new this.contestModel(createCatDto);
-        return createdContest.save();
-    }
 
     async findAll(): Promise<Contest[]> {
         return await this.contestModel.find().exec();
@@ -21,5 +20,19 @@ export class ContestService {
     async deleteById(id: string): Promise<boolean> {
         await this.contestModel.deleteOne({ _id: id });
         return true;
+    }
+
+    async contestFromPage(path: string): Promise<Contest> {
+        const { content, links, time, name } =
+            await this.nlpParsingService.parseHTML(path);
+        const parsedContent: ParsedContent =
+            await this.nlpParsingService.parseContent(content);
+        const contest = new this.contestModel({
+            name,
+            time,
+            links,
+            ...parsedContent,
+        });
+        return contest.save();
     }
 }

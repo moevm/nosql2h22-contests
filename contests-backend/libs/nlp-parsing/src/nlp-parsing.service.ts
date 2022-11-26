@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import fs from 'fs';
-import natural from 'natural';
-import axios from 'axios';
 import puppeteer from 'puppeteer';
-import PorterStemmerRu from '../../../node_modules/natural/lib/natural/stemmers/porter_stemmer_ru';
-import { BayesClassifier, SentenceTokenizer } from 'natural';
+import { BayesClassifier } from 'natural';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const model = require('./model.json');
 
 export enum TOKEN_TYPE {
     DOCUMENTS = 'documents',
@@ -13,40 +11,79 @@ export enum TOKEN_TYPE {
     PRIZES = 'prizes',
     FORMAT = 'format',
     PURPOSES = 'purposes',
+    TIME = 'time',
 }
 
-export type ClassifiedToken = {
+export interface ParsedContent {
+    documents?: string;
+    contacts?: string;
+    participants?: string;
+    prizes?: string;
+    format?: string;
+    purposes?: string;
+    time?: string;
+}
+
+export interface Token {
     token: string;
     type: TOKEN_TYPE;
+}
+
+export interface ClassifiedToken extends Token {
     value: number;
+}
+
+export type ParsedPage = {
+    name: string;
+    time: string;
+    content: string[];
+    links: Link[];
+};
+
+export type Link = {
+    text: string;
+    link: string;
 };
 
 @Injectable()
 export class NlpParsingService {
-    async parseHTML(contestLink: string): Promise<any> {
+    async parseHTML(contestLink: string): Promise<ParsedPage> {
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
         await page.setDefaultNavigationTimeout(0);
-        await page.goto('http://knvsh.gov.spb.ru/contests/view/356/');
-        const pageHtml = await page.evaluate(
-            () => document.documentElement.outerHTML,
-        );
-        const deadline = await page.$eval(
+        await page.goto(contestLink);
+        const time: string = await page.$eval(
             '.competition_detail > .short > .type  > span',
             (e) => e.innerHTML,
         );
-        const desc = await page.$$eval(
-            '#content > .competition_detail > .desc > *',
+        const content: string[] = await page.$$eval(
+            '#content > .competition_detail > .desc > *:not(.title)',
             (options) => options.map((option) => option.textContent),
         );
+        const links: Link[] = await page.$$eval(
+            '#content > .competition_detail > .short > .docs > p > a',
+            (options) =>
+                options.map((option) => ({
+                    link: option.href,
+                    text: option.textContent,
+                })),
+        );
+        const name: string = await page.$eval(
+            '#content > .competition_detail > .desc > .title',
+            (e) => e.textContent,
+        );
         await browser.close();
-        const classifier =
-            fs.existsSync('model.json') && !process.env.RETRAIN
-                ? natural.BayesClassifier.restore(
-                      JSON.parse(fs.readFileSync('model.json').toString()),
-                  )
-                : await this.train();
-        const text = desc
+        return {
+            content,
+            time,
+            links,
+            name,
+        };
+    }
+
+    async parseContent(content: string[]): Promise<ParsedContent> {
+        const classifier = new BayesClassifier.restore(model);
+        const text = content
             .map((x) => x.split(/\s+/).join(' '))
             .filter((x) => x !== ' ');
         const result = {};
@@ -68,68 +105,43 @@ export class NlpParsingService {
         return result;
     }
 
-    async train(): Promise<BayesClassifier> {
-        const tokenizer = new SentenceTokenizer();
-
-        const docs = tokenizer.tokenize(
-            fs.readFileSync('./data/docs.txt').toString().split('\n').join(' '),
-        );
-        const contacts = tokenizer.tokenize(
-            fs
-                .readFileSync('./data/contacts.txt')
-                .toString()
-                .split('\n')
-                .join(' '),
-        );
-        const participants = tokenizer.tokenize(
-            fs
-                .readFileSync('./data/participants.txt')
-                .toString()
-                .split('\n')
-                .join(' '),
-        );
-        const format = tokenizer.tokenize(
-            fs
-                .readFileSync('./data/format.txt')
-                .toString()
-                .split('\n')
-                .join(' '),
-        );
-        const prize = tokenizer.tokenize(
-            fs
-                .readFileSync('./data/prize.txt')
-                .toString()
-                .split('\n')
-                .join(' '),
-        );
-        const purpose = tokenizer.tokenize(
-            fs
-                .readFileSync('./data/purpose.txt')
-                .toString()
-                .split('\n')
-                .join(' '),
-        );
-        const classifiedTokens = [
-            ...docs.map((doc) => ({ token: doc, type: 'doc' })),
-            ...contacts.map((contact) => ({ token: contact, type: 'contact' })),
-            ...participants.map((participant) => ({
-                token: participant,
-                type: 'participant',
-            })),
-            ...prize.map((prize) => ({ token: prize, type: 'prize' })),
-            ...format.map((format) => ({ token: format, type: 'format' })),
-            ...purpose.map((purpose) => ({ token: purpose, type: 'purpose' })),
-        ];
-        const classifier = new BayesClassifier(PorterStemmerRu);
-        for (const token of classifiedTokens)
-            classifier.addDocument(token.token, token.type);
-        await classifier.train();
-        classifier.save('model.json');
-        return classifier;
-    }
-
     classify(text: string, classifier: BayesClassifier): ClassifiedToken {
         const classified = classifier.getClassifications(text)[0];
         return { token: text, type: classified.label, value: classified.value };
     }
+
+    // tokenizeData(path: string): string[] {
+    //     const tokenizer = new SentenceTokenizer();
+    //     return tokenizer.tokenize(
+    //         fs.readFileSync(path).toString().split('\n').join(' '),
+    //     );
+    // }
+
+    // async train(): Promise<BayesClassifier> {
+    //     const docs: string[] = this.tokenizeData('./data/docs.txt');
+    //     const contacts: string[] = this.tokenizeData('./data/contacts.txt');
+    //     const participants: string[] = this.tokenizeData(
+    //         './data/participants.txt',
+    //     );
+    //     const format: string[] = this.tokenizeData('./data/format.txt');
+    //     const prize: string[] = this.tokenizeData('./data/prize.txt');
+    //     const purpose: string[] = this.tokenizeData('./data/purpose.txt');
+    //     const classifiedTokens = [
+    //         ...docs.map((doc) => ({ token: doc, type: 'doc' })),
+    //         ...contacts.map((contact) => ({ token: contact, type: 'contact' })),
+    //         ...participants.map((participant) => ({
+    //             token: participant,
+    //             type: 'participant',
+    //         })),
+    //         ...prize.map((prize) => ({ token: prize, type: 'prize' })),
+    //         ...format.map((format) => ({ token: format, type: 'format' })),
+    //         ...purpose.map((purpose) => ({ token: purpose, type: 'purpose' })),
+    //     ];
+    //     const classifier = new BayesClassifier(PorterStemmerRu);
+    //     for (const token of classifiedTokens)
+    //         classifier.addDocument(token.token, token.type);
+    //     await classifier.train();
+    //     classifier.save('model.json');
+    //     return classifier;
+    // }
 }

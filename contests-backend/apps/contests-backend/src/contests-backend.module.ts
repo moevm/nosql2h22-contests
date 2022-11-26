@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ContestController } from './contest';
-import { MongooseModule } from '@nestjs/mongoose';
-import { ContestService } from '@lib/services';
+import { ContestService, ServicesModule } from '@lib/services';
+import { NlpParsingModule } from '@libs/nlp-parsing';
+import { DomainModule } from '@libs/domain';
 
 @Module({
-    imports: [MongooseModule.forRoot('mongodb://root:root@localhost:27017')],
+    imports: [NlpParsingModule, ServicesModule, DomainModule],
     controllers: [ContestController],
     providers: [ContestService],
 })
