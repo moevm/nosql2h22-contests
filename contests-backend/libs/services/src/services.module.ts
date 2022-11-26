@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ContestService } from './contest';
-import { DomainModule } from '@libs/domain';
 import { NlpParsingModule } from '@libs/nlp-parsing';
+import { DomainModule } from '@libs/domain';
 
 @Module({
-    imports: [DomainModule, NlpParsingModule],
+    imports: [NlpParsingModule, DomainModule],
     providers: [ContestService],
     exports: [ContestService],
 })

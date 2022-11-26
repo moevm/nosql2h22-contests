@@ -13,12 +13,25 @@ export class ContestService {
         private readonly nlpParsingService: NlpParsingService,
     ) {}
 
-    async findAll(): Promise<Contest[]> {
-        return await this.contestModel.find().exec();
+    async findAll(
+        page: number,
+        count: number,
+        filter?: string,
+    ): Promise<Contest[]> {
+        return await this.contestModel
+            .find({ name: { $regex: new RegExp(`.*${filter || ''}.*`, 'i') } })
+            .skip(page * count)
+            .limit(count)
+            .exec();
     }
 
     async deleteById(id: string): Promise<boolean> {
         await this.contestModel.deleteOne({ _id: id });
+        return true;
+    }
+
+    async saveAll(contests: Contest[]): Promise<boolean> {
+        await this.contestModel.collection.insertMany(contests);
         return true;
     }
 

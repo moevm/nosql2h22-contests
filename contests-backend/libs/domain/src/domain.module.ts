@@ -17,6 +17,9 @@ import { entities } from './entities';
     ],
     providers: [],
     exports: [
+        MongooseModule.forRoot('mongodb://root:root@localhost:27017', {
+            connectionName: 'contests',
+        }),
         MongooseModule.forFeature(
             entities.map((entity) => ({
                 name: entity.name,
@@ -24,14 +27,6 @@ import { entities } from './entities';
             })),
             'contests',
         ),
-        MongooseModule.forRoot('mongodb://root:root@localhost:27017', {
-            connectionName: 'contests',
-        }),
     ],
 })
 export class DomainModule {}
-
-// ...entities.map((entity) => ({
-//     provide: getModelToken(entity.name),
-//     useValue: entity.model,
-// })),
