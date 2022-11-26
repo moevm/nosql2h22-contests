@@ -32,15 +32,15 @@ const train = async () => {
         fs.readFileSync('./data/purpose.txt').toString().split('\n').join(' '),
     );
     const classifiedTokens = [
-        ...docs.map((doc) => ({ token: doc, type: 'doc' })),
-        ...contacts.map((contact) => ({ token: contact, type: 'contact' })),
+        ...docs.map((doc) => ({ token: doc, type: 'documents' })),
+        ...contacts.map((contact) => ({ token: contact, type: 'contacts' })),
         ...participants.map((participant) => ({
             token: participant,
-            type: 'participant',
+            type: 'participants',
         })),
-        ...prize.map((prize) => ({ token: prize, type: 'prize' })),
+        //...prize.map((prize) => ({ token: prize, type: 'prizes' })),
         ...format.map((format) => ({ token: format, type: 'format' })),
-        ...purpose.map((purpose) => ({ token: purpose, type: 'purpose' })),
+        ...purpose.map((purpose) => ({ token: purpose, type: 'purposes' })),
         //...time.map(time => ({token: time, type: 'time'}))
     ];
 

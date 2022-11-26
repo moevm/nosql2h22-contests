@@ -88,13 +88,13 @@ export class NlpParsingService {
             .filter((x) => x !== ' ');
         const result = {};
         for (let i = 0; i < text.length; i++) {
-            const classified: ClassifiedToken = this.classify(
-                text[i],
-                classifier,
-            );
-            if (classified.value > 0.01 && text[i].match(/.*:.*/)) {
+            if (text[i].match(/.*:.*/)) {
+                const classified: ClassifiedToken = this.classify(
+                    text[i].split(':')[0],
+                    classifier,
+                );
                 let str = text[i];
-                while (!str.match(/.+\.\s*$/) && i < text.length - 1) {
+                while (!str.match(/[а-яА-Я]+\.\s*$/) && i < text.length - 1) {
                     str += text[++i] + '\n';
                 }
                 if (result[classified.type])

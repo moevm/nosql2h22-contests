@@ -64,12 +64,22 @@ export class ContestController {
     }
 
     @Post('parse')
-    async createContest(@Body() body): Promise<Contest> {
-        return await this.contestService.contestFromPage(body.path);
+    async createContest(@Body('link') link: string): Promise<Contest> {
+        if (!link.match(/http:\/\/knvsh.gov.spb.ru\/contests\/view\/.*/g))
+            throw new HttpException(
+                'Ссылка должна начинаться с: http://knvsh.gov.spb.ru/contests/view/',
+                HttpStatus.BAD_REQUEST,
+            );
+        return await this.contestService.contestFromPage(link);
     }
 
     @Delete('delete')
-    async deleteContest(@Body() body) {
-        return await this.contestService.deleteById(body.id);
+    async deleteContest(@Body('id') id) {
+        return await this.contestService.deleteById(id);
+    }
+
+    @Delete('deleteAll')
+    async deleteAll() {
+        return await this.contestService.deleteAll();
     }
 }

@@ -13,6 +13,10 @@ export class ContestService {
         private readonly nlpParsingService: NlpParsingService,
     ) {}
 
+    async deleteAll() {
+        await this.contestModel.collection.deleteMany({});
+    }
+
     async findAll(
         page: number,
         count: number,
