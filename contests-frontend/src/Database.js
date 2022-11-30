@@ -1,8 +1,8 @@
-import React from "react";
+import React, {useReducer} from "react";
 
 import MUIDataTable from "mui-datatables";
 
-import {Box, Button, Input} from "@mui/material";
+import {Alert, Box, Button, Input} from "@mui/material";
 import axios from "axios";
 
 export default function Database() {
@@ -10,6 +10,9 @@ export default function Database() {
     const [firstRequest, setFirstRequest] = React.useState(true);
     const [allCount, setAllCount] = React.useState(0);
     const [file, setFile] = React.useState(undefined);
+    const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
+    const [successAlerts] = React.useState([]);
+    const [errorAlerts] = React.useState([]);
 
     function updateFirstData() {
         if (firstRequest) {
@@ -17,6 +20,15 @@ export default function Database() {
             updateData(0, 10);
             setFirstRequest(false);
         }
+    }
+
+    function createAlert(message, alerts) {
+        alerts.push(message);
+        setTimeout(() => {
+            alerts.shift();
+            forceUpdate();
+        }, 2000)
+        forceUpdate();
     }
 
     const columns = [
@@ -32,7 +44,8 @@ export default function Database() {
         'Требования',
         'Город',
         'Сфера',
-        'Ссылка'
+        'Ссылка',
+        'Ссылки на документы'
     ];
 
     function updateData(page, rows) {
@@ -41,12 +54,17 @@ export default function Database() {
                 page: page,
                 count: rows,
             }
-        }).then(res => updateDataWithNewDto(res.data));
+        })
+            .then(res => {
+                updateDataWithNewDto(res.data);
+            })
+            .catch(reason => createAlert(reason.response.data.message, errorAlerts));
     }
 
     function updateCount() {
         axios.get('http://localhost:3000/contests/count')
-            .then(res => setAllCount(res.data));
+            .then(res => setAllCount(res.data))
+            .catch(reason => createAlert(reason.response.data.message, errorAlerts));
     }
 
     function search(searchText) {
@@ -56,7 +74,12 @@ export default function Database() {
                 page: 0,
                 count: 0,
             }
-        }).then(res => updateDataWithNewDto(res.data));
+        })
+            .then(res => {
+                updateDataWithNewDto(res.data);
+                createAlert("Успех", successAlerts);
+            })
+            .catch(reason => createAlert(reason.response.data.message, errorAlerts));
     }
 
     function updateDataWithNewDto(dto) {
@@ -75,7 +98,8 @@ export default function Database() {
                 '',
                 entry.city,
                 '',
-                entry.link])
+                entry.link,
+                entry.links.map(li => `${li.text}:\n${li.link}`).join('\n')])
         });
         setData(newData);
     }
@@ -90,7 +114,9 @@ export default function Database() {
 
             formData.append("file", file);
 
-            axios.post('http://localhost:3000/contests/import', formData);
+            axios.post('http://localhost:3000/contests/import', formData)
+                .then(res => createAlert("Успех", successAlerts))
+                .catch(reason => createAlert(reason.response.data.message, errorAlerts));
         }
     }
 
@@ -127,6 +153,8 @@ export default function Database() {
 
     return (
         <Box sx={{width: 1200, maxWidth: '80%', margin: "auto"}} className="Upload">
+            {successAlerts.map(alert => (<Alert severity="success">{alert}</Alert>))}
+            {errorAlerts.map(alert => (<Alert severity="error">{alert}</Alert>))}
             <MUIDataTable title={'Contests'} data={data} columns={columns} options={options}/>
             <p/>
             <Button variant="contained" href="http://localhost:3000/contests/export">Экспорт</Button>

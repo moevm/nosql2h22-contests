@@ -1,5 +1,6 @@
-import React from "react";
+import React, {useReducer} from "react";
 import {
+    Alert,
     Box,
     Button,
     Paper,
@@ -15,6 +16,9 @@ import axios from "axios";
 
 export default function Home() {
     const [link, setLink] = React.useState("");
+    const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
+    const [successAlerts] = React.useState([]);
+    const [errorAlerts] = React.useState([]);
     const [row, setRow] = React.useState({
         name: '',
         dateFrom: '',
@@ -27,7 +31,8 @@ export default function Home() {
         signatures: '',
         city: '',
         sphere: '',
-        link: ''
+        link: '',
+        links: '',
     });
 
     function newLink(event) {
@@ -47,12 +52,14 @@ export default function Home() {
         'Требования',
         'Город',
         'Сфера',
-        'Ссылка'
+        'Ссылка',
+        'Ссылки на документы',
     ];
 
     function onLinkPushed() {
         axios.post('http://localhost:3000/contests/parse', {link: link})
             .then(res => {
+                console.log(res)
                 const body = res.data
                 setRow({
                     name: body.name,
@@ -67,9 +74,22 @@ export default function Home() {
                     requirements: '',
                     city: body.city,
                     sphere: '',
-                    link: body.link
+                    link: body.link,
+                    links: body.links.map(li => `${li.text}:\n${li.link}`).join('\n'),
                 });
-            });
+
+                createAlert("Успех", successAlerts);
+            })
+            .catch(reason => createAlert(reason.response.data.message, errorAlerts));
+    }
+
+    function createAlert(message, alerts) {
+        alerts.push(message);
+        setTimeout(() => {
+            alerts.shift();
+            forceUpdate();
+        }, 2000)
+        forceUpdate();
     }
 
     return (
@@ -79,6 +99,8 @@ export default function Home() {
                 <p/>
                 <Button variant="contained" onClick={onLinkPushed}>Загрузить</Button>
                 <p/>
+                {successAlerts.map(alert => (<Alert severity="success">{alert}</Alert>))}
+                {errorAlerts.map(alert => (<Alert severity="error">{alert}</Alert>))}
                 <TableContainer component={Paper}>
                     <Table sx={{minWidth: 650}} aria-label="simple table">
                         <TableHead>
@@ -104,6 +126,7 @@ export default function Home() {
                                 <TableCell align="right">{row.city}</TableCell>
                                 <TableCell align="right">{row.sphere}</TableCell>
                                 <TableCell align="right">{row.link}</TableCell>
+                                <TableCell align="right">{row.links}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
