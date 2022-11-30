@@ -63,6 +63,11 @@ export class ContestController {
         return await this.contestService.findAll(page, count, filter);
     }
 
+    @Get('count')
+    async contestsCount(): Promise<number> {
+        return await this.contestService.count();
+    }
+
     @Post('parse')
     async createContest(@Body('link') link: string): Promise<Contest> {
         if (!link.match(/http:\/\/knvsh.gov.spb.ru\/contests\/view\/.*/g))

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import puppeteer from 'puppeteer';
-import { BayesClassifier } from 'natural';
+import { BayesClassifier, SentenceTokenizer } from 'natural';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const model = require('./model.json');
 
@@ -47,7 +47,7 @@ export type Link = {
 
 @Injectable()
 export class NlpParsingService {
-    async parseHTML(contestLink: string): Promise<ParsedPage> {
+    async parseHTML(contestLink: string): Promise<any> {
         const browser = await puppeteer.launch({
             args: ['--no-sandbox', '--disable-setuid-sandbox'],
         });
@@ -58,9 +58,15 @@ export class NlpParsingService {
             '.competition_detail > .short > .type  > span',
             (e) => e.innerHTML,
         );
-        const content: string[] = await page.$$eval(
+        const content = await page.$$eval(
             '#content > .competition_detail > .desc > *:not(.title)',
-            (options) => options.map((option) => option.textContent),
+            (options) =>
+                options.map((option) => ({
+                    highlighted: Array.from(
+                        option.getElementsByTagName('strong'),
+                    ).map((x) => x.textContent),
+                    text: option.textContent,
+                })),
         );
         const links: Link[] = await page.$$eval(
             '#content > .competition_detail > .short > .docs > p > a',
@@ -83,33 +89,38 @@ export class NlpParsingService {
         };
     }
 
-    async parseContent(content: string[]): Promise<ParsedContent> {
+    async parseContent(content: any): Promise<ParsedContent> {
         const classifier = new BayesClassifier.restore(model);
-        const text = content
-            .map((x) => x.split(/\s+/).join(' '))
-            .filter((x) => x !== ' ');
         const result = {};
-        for (let i = 0; i < text.length; i++) {
-            if (text[i].match(/.*:.*/)) {
+        for (let i = 0; i < content.length; i++) {
+            if (content[i].text.match(/.*:.*/)) {
+                let str = content[i].text.split(/[\s\t\n]+/).join(' ');
+                while (!str.match(/.+\.[\s\n\t]*$/) && i < content.length - 1) {
+                    str +=
+                        content[++i].text.split(/[\s\t\n]+/).join(' ') + '\n';
+                }
                 const classified: ClassifiedToken = this.classify(
-                    text[i].split(':')[0],
+                    str,
                     classifier,
                 );
-                let str = text[i];
-                while (!str.match(/[а-яА-Я]+\.\s*$/) && i < text.length - 1) {
-                    str += text[++i] + '\n';
+                if (classified.value > 0.01) {
+                    if (result[classified.type])
+                        result[classified.type] += str + '\n';
+                    else result[classified.type] = str + '\n';
                 }
-                if (result[classified.type])
-                    result[classified.type] += str + '\n';
-                else result[classified.type] = str;
             }
         }
+        // console.log(result);
         return result;
     }
 
     classify(text: string, classifier: BayesClassifier): ClassifiedToken {
-        const classified = classifier.getClassifications(text)[0];
-        return { token: text, type: classified.label, value: classified.value };
+        const classified = classifier.getClassifications(text);
+        return {
+            token: text,
+            type: classified[0].label,
+            value: classified[0].value,
+        };
     }
 
     // tokenizeData(path: string): string[] {

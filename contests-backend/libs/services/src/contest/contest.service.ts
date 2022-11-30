@@ -34,6 +34,10 @@ export class ContestService {
         return true;
     }
 
+    async count(): Promise<number> {
+        return await this.contestModel.collection.count();
+    }
+
     async saveAll(contests: Contest[]): Promise<boolean> {
         await this.contestModel.collection.insertMany(contests);
         return true;

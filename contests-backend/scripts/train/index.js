@@ -7,30 +7,25 @@ const fs = require('fs');
 const train = async () => {
     const tokenizer = new natural.SentenceTokenizer();
 
-    const docs = tokenizer.tokenize(
-        fs.readFileSync('./data/docs.txt').toString().split('\n').join(' '),
-    );
-    const contacts = tokenizer.tokenize(
-        fs.readFileSync('./data/contacts.txt').toString().split('\n').join(' '),
-    );
-    const participants = tokenizer.tokenize(
-        fs
-            .readFileSync('./data/participants.txt')
-            .toString()
-            .split('\n')
-            .join(' '),
-    );
+    const docs = fs.readFileSync('./data/docs.txt').toString().split('\n');
+    console.log(docs)
+    const contacts = fs
+        .readFileSync('./data/contacts.txt')
+        .toString()
+        .split('\n');
+    const participants = fs
+        .readFileSync('./data/participants.txt')
+        .toString()
+        .split('\n');
 
-    const format = tokenizer.tokenize(
-        fs.readFileSync('./data/format.txt').toString().split('\n').join(' '),
-    );
+    const format = fs.readFileSync('./data/format.txt').toString().split('\n');
 
-    const prize = tokenizer.tokenize(
-        fs.readFileSync('./data/prize.txt').toString().split('\n').join(' '),
-    );
-    const purpose = tokenizer.tokenize(
-        fs.readFileSync('./data/purpose.txt').toString().split('\n').join(' '),
-    );
+    //const time = fs.readFileSync('./data/time.txt').toString().split('\n');
+    const prize = fs.readFileSync('./data/prize.txt').toString().split('\n');
+    const purpose = fs
+        .readFileSync('./data/purpose.txt')
+        .toString()
+        .split('\n');
     const classifiedTokens = [
         ...docs.map((doc) => ({ token: doc, type: 'documents' })),
         ...contacts.map((contact) => ({ token: contact, type: 'contacts' })),
@@ -38,10 +33,10 @@ const train = async () => {
             token: participant,
             type: 'participants',
         })),
-        //...prize.map((prize) => ({ token: prize, type: 'prizes' })),
+        ...prize.map((prize) => ({ token: prize, type: 'prizes' })),
         ...format.map((format) => ({ token: format, type: 'format' })),
         ...purpose.map((purpose) => ({ token: purpose, type: 'purposes' })),
-        //...time.map(time => ({token: time, type: 'time'}))
+        //...time.map((time) => ({ token: time, type: 'time' })),
     ];
 
     const classifier = new natural.BayesClassifier(PorterStemmerRu);
