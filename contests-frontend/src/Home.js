@@ -11,16 +11,23 @@ import {
     TableRow,
     TextField
 } from "@mui/material";
+import axios from "axios";
 
 export default function Home() {
     const [link, setLink] = React.useState("");
     const [row, setRow] = React.useState({
         name: '',
-        dateOfStart: '',
-        dateOfEnd: '',
-        location: '',
+        dateFrom: '',
+        dateTo: '',
+        status: '',
+        prize: '',
+        reporting: '',
+        deadline: '',
+        format: '',
+        signatures: '',
+        city: '',
         sphere: '',
-        status: ''
+        link: ''
     });
 
     function newLink(event) {
@@ -28,35 +35,40 @@ export default function Home() {
     }
 
     const columns = [
-        {
-            label: 'Название конкурса'
-        },
-        {
-            label: 'Дата начала'
-        },
-        {
-            label: 'Дата окончания'
-        },
-        {
-            label: 'Место проведения'
-        },
-        {
-            label: 'Сфера'
-        },
-        {
-            label: 'Статус'
-        }
+        'Название',
+        'Дата начала',
+        'Дата конца',
+        'Статус',
+        'Награда',
+        'Отчетность',
+        'Податься до',
+        'Формат',
+        'Подписи',
+        'Требования',
+        'Город',
+        'Сфера',
+        'Ссылка'
     ];
 
     function onLinkPushed() {
-        setRow({
-            name: 'Example',
-            dateOfStart: 'Example',
-            dateOfEnd: 'Example',
-            location: 'Example',
-            sphere: 'Example',
-            status: 'Example',
-        });
+        axios.post(`http://localhost:3000/contests/parse`, {link: link})
+            .then(res => {
+                const body = res.data
+                setRow({
+                    name: body.name,
+                    dateFrom: body.time,
+                    dateTo: body.time,
+                    status: '',
+                    prize: body.prizes,
+                    reporting: '',
+                    deadline: '',
+                    format: '',
+                    signatures: '',
+                    city: '',
+                    sphere: '',
+                    link: ''
+                });
+            });
     }
 
     return (
@@ -71,7 +83,7 @@ export default function Home() {
                         <TableHead>
                             <TableRow>
                                 {columns.map(col => (
-                                    <TableCell align="right">{col.label}</TableCell>
+                                    <TableCell align="right">{col}</TableCell>
                                 ))}
                             </TableRow>
                         </TableHead>
@@ -79,11 +91,17 @@ export default function Home() {
                             <TableRow key={row.name}
                                       sx={{'&:last-child td, &:last-child th': {border: 0}}}>
                                 <TableCell align="right">{row.name}</TableCell>
-                                <TableCell align="right">{row.dateOfStart}</TableCell>
-                                <TableCell align="right">{row.dateOfEnd}</TableCell>
-                                <TableCell align="right">{row.location}</TableCell>
-                                <TableCell align="right">{row.sphere}</TableCell>
+                                <TableCell align="right">{row.dateFrom}</TableCell>
+                                <TableCell align="right">{row.dateTo}</TableCell>
                                 <TableCell align="right">{row.status}</TableCell>
+                                <TableCell align="right">{row.prize}</TableCell>
+                                <TableCell align="right">{row.reporting}</TableCell>
+                                <TableCell align="right">{row.deadline}</TableCell>
+                                <TableCell align="right">{row.format}</TableCell>
+                                <TableCell align="right">{row.signatures}</TableCell>
+                                <TableCell align="right">{row.city}</TableCell>
+                                <TableCell align="right">{row.sphere}</TableCell>
+                                <TableCell align="right">{row.link}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>
