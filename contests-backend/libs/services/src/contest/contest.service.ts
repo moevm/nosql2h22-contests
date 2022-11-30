@@ -39,7 +39,15 @@ export class ContestService {
     }
 
     async saveAll(contests: Contest[]): Promise<boolean> {
-        await this.contestModel.collection.insertMany(contests);
+        for (const contest of contests) {
+            await this.contestModel.collection.updateOne(
+                { link: contest.link },
+                { $set: contest },
+                {
+                    upsert: true,
+                },
+            );
+        }
         return true;
     }
 

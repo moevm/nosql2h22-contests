@@ -10,7 +10,7 @@ export class Contest {
         Object.assign(this, data);
     }
 
-    @Prop({ required: true })
+    @Prop({ required: true, unique: true })
     link: string;
     @Prop({ required: true })
     name: string;
