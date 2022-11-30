@@ -11,9 +11,13 @@ export class Contest {
     }
 
     @Prop({ required: true })
+    link: string;
+    @Prop({ required: true })
     name: string;
     @Prop({ required: false })
     documents: string;
+    @Prop({ required: true })
+    city: string;
     @Prop({ required: false })
     contacts?: string;
     @Prop({ required: false })

@@ -43,17 +43,23 @@ export class ContestService {
         return true;
     }
 
-    async contestFromPage(path: string): Promise<Contest> {
+    async contestFromPage(path: string): Promise<any> {
+        const contest = await this.contestModel.collection.findOne({
+            link: path,
+        });
+        if (contest) return contest;
         const { content, links, time, name } =
             await this.nlpParsingService.parseHTML(path);
         const parsedContent: ParsedContent =
             await this.nlpParsingService.parseContent(content);
-        const contest = new this.contestModel({
+        return new this.contestModel({
+            link: path,
+            city: 'Санкт-Петербург',
             name,
             time,
             links,
             ...parsedContent,
-        });
-        return contest.save();
+        }).save();
+        //return contest.save();
     }
 }
