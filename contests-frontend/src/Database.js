@@ -2,355 +2,138 @@ import React from "react";
 
 import MUIDataTable from "mui-datatables";
 
-import {
-    Box,
-    Checkbox,
-    FormControl,
-    FormControlLabel,
-    FormGroup,
-    FormLabel,
-    InputLabel,
-    ListItemText,
-    MenuItem,
-    Select,
-    TextField
-} from "@mui/material";
-import Statistic from "./Statistic";
-
-export const data = [
-    ['Московская олимпиада по математике', '2022.12.12', '2022.12.15', 'Москва', 'Математика', 'Предстоит'],
-    ['Московская олимпиада по математике', '2022.12.12', '2022.12.15', 'Москва', 'Математика', 'Завершен'],
-    ['Олимпиада по русскому языку', '2022.12.12', '2022.12.15', 'Таганрог', 'Русский язык', 'Идёт'],
-];
+import {Box, Button, Input} from "@mui/material";
+import axios from "axios";
 
 export default function Database() {
-    const [ageFilterChecked, setAgeFilterChecked] = React.useState(false);
+    const [data, setData] = React.useState([]);
+    const [firstRequest, setFirstRequest] = React.useState(true);
+    const [allCount, setAllCount] = React.useState(0);
+    const [file, setFile] = React.useState(undefined);
+
+    function updateFirstData() {
+        if (firstRequest) {
+            updateCount()
+            updateData(0, 10);
+            setFirstRequest(false);
+        }
+    }
 
     const columns = [
-        {
-            label: 'Название конкурса',
-            name: 'Name',
-            options: {
-                filter: true,
-                filterOptions: {
-                    renderValue: v => v ? v.replace(/^(\w).* (.*)$/, '$1. $2') : ''
-                },
-                filterType: 'dropdown'
-            },
-        },
-        {
-            label: 'Дата начала',
-            name: 'DateOfStart',
-            options: {
-                filter: true,
-                filterType: 'custom',
-
-                // if the below value is set, these values will be used every time the table is rendered.
-                // it's best to let the table internally manage the filterList
-                //filterList: [25, 50],
-
-                customFilterListOptions: {
-                    render: v => {
-                        if (v[0] && v[1] && ageFilterChecked) {
-                            return [`Min Age: ${v[0]}`, `Max Age: ${v[1]}`];
-                        } else if (v[0] && v[1] && !ageFilterChecked) {
-                            return `Min Age: ${v[0]}, Max Age: ${v[1]}`;
-                        } else if (v[0]) {
-                            return `Min Age: ${v[0]}`;
-                        } else if (v[1]) {
-                            return `Max Age: ${v[1]}`;
-                        }
-                        return [];
-                    },
-                    update: (filterList, filterPos, index) => {
-                        console.log('customFilterListOnDelete: ', filterList, filterPos, index);
-
-                        if (filterPos === 0) {
-                            filterList[index].splice(filterPos, 1, '');
-                        } else if (filterPos === 1) {
-                            filterList[index].splice(filterPos, 1);
-                        } else if (filterPos === -1) {
-                            filterList[index] = [];
-                        }
-
-                        return filterList;
-                    },
-                },
-                filterOptions: {
-                    names: [],
-                    logic(age, filters) {
-                        if (filters[0] && filters[1]) {
-                            return age < filters[0] || age > filters[1];
-                        } else if (filters[0]) {
-                            return age < filters[0];
-                        } else if (filters[1]) {
-                            return age > filters[1];
-                        }
-                        return false;
-                    },
-                    display: (filterList, onChange, index, column) => (
-                        <div>
-                            <FormLabel>{column.label}</FormLabel>
-                            <FormGroup row>
-                                <TextField
-                                    label='min'
-                                    value={filterList[index][0] || ''}
-                                    onChange={event => {
-                                        filterList[index][0] = event.target.value;
-                                        onChange(filterList[index], index, column);
-                                    }}
-                                    style={{width: '45%', marginRight: '5%'}}
-                                />
-                                <TextField
-                                    label='max'
-                                    value={filterList[index][1] || ''}
-                                    onChange={event => {
-                                        filterList[index][1] = event.target.value;
-                                        onChange(filterList[index], index, column);
-                                    }}
-                                    style={{width: '45%'}}
-                                />
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={ageFilterChecked}
-                                            onChange={event => setAgeFilterChecked(event.target.checked)}
-                                        />
-                                    }
-                                    label='Separate Values'
-                                    style={{marginLeft: '0px'}}
-                                />
-                            </FormGroup>
-                        </div>
-                    ),
-                },
-                print: false,
-            },
-        },
-        {
-            label: 'Дата окончания',
-            name: 'DateOfEnd',
-            options: {
-                filter: true,
-                filterType: 'custom',
-
-                // if the below value is set, these values will be used every time the table is rendered.
-                // it's best to let the table internally manage the filterList
-                //filterList: [25, 50],
-
-                customFilterListOptions: {
-                    render: v => {
-                        if (v[0] && v[1] && ageFilterChecked) {
-                            return [`Min Age: ${v[0]}`, `Max Age: ${v[1]}`];
-                        } else if (v[0] && v[1] && !ageFilterChecked) {
-                            return `Min Age: ${v[0]}, Max Age: ${v[1]}`;
-                        } else if (v[0]) {
-                            return `Min Age: ${v[0]}`;
-                        } else if (v[1]) {
-                            return `Max Age: ${v[1]}`;
-                        }
-                        return [];
-                    },
-                    update: (filterList, filterPos, index) => {
-                        console.log('customFilterListOnDelete: ', filterList, filterPos, index);
-
-                        if (filterPos === 0) {
-                            filterList[index].splice(filterPos, 1, '');
-                        } else if (filterPos === 1) {
-                            filterList[index].splice(filterPos, 1);
-                        } else if (filterPos === -1) {
-                            filterList[index] = [];
-                        }
-
-                        return filterList;
-                    },
-                },
-                filterOptions: {
-                    names: [],
-                    logic(age, filters) {
-                        if (filters[0] && filters[1]) {
-                            return age < filters[0] || age > filters[1];
-                        } else if (filters[0]) {
-                            return age < filters[0];
-                        } else if (filters[1]) {
-                            return age > filters[1];
-                        }
-                        return false;
-                    },
-                    display: (filterList, onChange, index, column) => (
-                        <div>
-                            <FormLabel>{column.label}</FormLabel>
-                            <FormGroup row>
-                                <TextField
-                                    label='min'
-                                    value={filterList[index][0] || ''}
-                                    onChange={event => {
-                                        filterList[index][0] = event.target.value;
-                                        onChange(filterList[index], index, column);
-                                    }}
-                                    style={{width: '45%', marginRight: '5%'}}
-                                />
-                                <TextField
-                                    label='max'
-                                    value={filterList[index][1] || ''}
-                                    onChange={event => {
-                                        filterList[index][1] = event.target.value;
-                                        onChange(filterList[index], index, column);
-                                    }}
-                                    style={{width: '45%'}}
-                                />
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={ageFilterChecked}
-                                            onChange={event => setAgeFilterChecked(event.target.checked)}
-                                        />
-                                    }
-                                    label='Separate Values'
-                                    style={{marginLeft: '0px'}}
-                                />
-                            </FormGroup>
-                        </div>
-                    ),
-                },
-                print: false,
-            },
-        },
-        {
-            label: 'Место проведения',
-            name: 'Location',
-            options: {
-                filter: true,
-                display: 'true',
-                filterType: 'custom',
-                customFilterListOptions: {
-                    render: v => v.map(l => l.toUpperCase()),
-                    update: (filterList, filterPos, index) => {
-                        console.log('update');
-                        console.log(filterList, filterPos, index);
-                        filterList[index].splice(filterPos, 1);
-                        return filterList;
-                    }
-                },
-                filterOptions: {
-                    logic: (location, filters, row) => {
-                        return filters.length ? !filters.includes(location) : false;
-                    },
-                    display: (filterList, onChange, index, column) => {
-                        const optionValues = ['Москва', 'Санкт-Петербург', 'Таганрог'];
-                        return (
-                            <FormControl>
-                                <InputLabel htmlFor='select-multiple-chip'>
-                                    {column.label}
-                                </InputLabel>
-                                <Select multiple
-                                        value={filterList[index]}
-                                        renderValue={selected => selected.join(', ')}
-                                        onChange={event => {
-                                            filterList[index] = event.target.value;
-                                            onChange(filterList[index], index, column);
-                                        }}>
-                                    {optionValues.map(item => (
-                                        <MenuItem key={item} value={item}>
-                                            <Checkbox
-                                                color='primary'
-                                                checked={filterList[index].indexOf(item) > -1}
-                                            />
-                                            <ListItemText primary={item}/>
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        );
-                    }
-                }
-            }
-        },
-        {
-            label: 'Сфера',
-            name: 'TargetKnowledge',
-            options: {
-                filter: true,
-                display: 'true',
-                filterType: 'custom',
-                customFilterListOptions: {
-                    render: v => v.map(l => l.toUpperCase()),
-                    update: (filterList, filterPos, index) => {
-                        console.log('update');
-                        console.log(filterList, filterPos, index);
-                        filterList[index].splice(filterPos, 1);
-                        return filterList;
-                    }
-                },
-                filterOptions: {
-                    logic: (location, filters, row) => {
-                        return filters.length ? !filters.includes(location) : false;
-                    },
-                    display: (filterList, onChange, index, column) => {
-                        const optionValues = ['Москва', 'Санкт-Петербург', 'Таганрог'];
-                        return (
-                            <FormControl>
-                                <InputLabel htmlFor='select-multiple-chip'>
-                                    {column.label}
-                                </InputLabel>
-                                <Select multiple
-                                        value={filterList[index]}
-                                        renderValue={selected => selected.join(', ')}
-                                        onChange={event => {
-                                            filterList[index] = event.target.value;
-                                            onChange(filterList[index], index, column);
-                                        }}>
-                                    {optionValues.map(item => (
-                                        <MenuItem key={item} value={item}>
-                                            <Checkbox
-                                                color='primary'
-                                                checked={filterList[index].indexOf(item) > -1}
-                                            />
-                                            <ListItemText primary={item}/>
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        );
-                    }
-                }
-            }
-        },
-        {
-            label: 'Статус',
-            name: 'Status',
-            options: {
-                filter: true,
-                filterType: 'checkbox',
-                filterOptions: {
-                    names: ['Предстоит', 'Завершен', 'Идёт'],
-                    logic(status, filterVal) {
-                        return status === filterVal;
-                    },
-                },
-                sort: false,
-            },
-        },
+        'Название',
+        'Дата начала',
+        'Дата конца',
+        'Статус',
+        'Награда',
+        'Отчетность',
+        'Податься до',
+        'Формат',
+        'Подписи',
+        'Требования',
+        'Город',
+        'Сфера',
+        'Ссылка'
     ];
+
+    function updateData(page, rows) {
+        axios.get('http://localhost:3000/contests/', {
+            params: {
+                page: page,
+                count: rows,
+            }
+        }).then(res => updateDataWithNewDto(res.data));
+    }
+
+    function updateCount() {
+        axios.get('http://localhost:3000/contests/count')
+            .then(res => setAllCount(res.data));
+    }
+
+    function search(searchText) {
+        axios.get('http://localhost:3000/contests/', {
+            params: {
+                filter: searchText,
+                page: 0,
+                count: 0,
+            }
+        }).then(res => updateDataWithNewDto(res.data));
+    }
+
+    function updateDataWithNewDto(dto) {
+        const newData = [];
+        dto.forEach(entry => {
+            newData.push([
+                entry.name,
+                entry.time,
+                entry.time,
+                '',
+                entry.prizes,
+                '',
+                '',
+                '',
+                '',
+                '',
+                entry.city,
+                '',
+                entry.link])
+        });
+        setData(newData);
+    }
+
+    function onFileChange(event) {
+        setFile(event.target.files[0]);
+    }
+
+    function onFileUpload() {
+        if (file !== undefined) {
+            const formData = new FormData();
+
+            formData.append("file", file);
+
+            axios.post('http://localhost:3000/contests/import', formData);
+        }
+    }
+
+    updateFirstData();
 
     const options = {
         filter: true,
-        filterType: 'multiselect',
+        filterType: 'dropdown',
         responsive: 'standard',
-        setFilterChipProps: (colIndex, colName, data) => {
-            return {
-                color: 'primary',
-                variant: 'outlined',
-                className: 'testClass123',
-            };
-        }
+        rowsPerPageOptions: [1, 3, 5, 10, 20],
+        jumpToPage: true,
+        serverSide: true,
+        count: allCount,
+        onTableChange: (action, tableState) => {
+            console.log(action, tableState);
+
+            switch (action) {
+                case 'changePage':
+                case 'changeRowsPerPage':
+                case 'onSearchClose':
+                    updateData(tableState.page, tableState.rowsPerPage);
+                    break;
+                case 'search':
+                    if (tableState.searchText != null && tableState.searchText.length > 2) {
+                        search(tableState.searchText)
+                    }
+                    break;
+                default:
+                    console.log('action not handled.');
+            }
+        },
+
     };
 
     return (
         <Box sx={{width: 1200, maxWidth: '80%', margin: "auto"}} className="Upload">
             <MUIDataTable title={'Contests'} data={data} columns={columns} options={options}/>
             <p/>
-            <Statistic columns={columns}/>
+            <Button variant="contained" href="http://localhost:3000/contests/export">Экспорт</Button>
+            <div>
+                <Input type="file" onChange={onFileChange}/>
+                <Button onClick={onFileUpload}>Upload</Button>
+            </div>
         </Box>
     );
 }

@@ -51,7 +51,7 @@ export default function Home() {
     ];
 
     function onLinkPushed() {
-        axios.post(`http://localhost:3000/contests/parse`, {link: link})
+        axios.post('http://localhost:3000/contests/parse', {link: link})
             .then(res => {
                 const body = res.data
                 setRow({
@@ -64,9 +64,10 @@ export default function Home() {
                     deadline: '',
                     format: '',
                     signatures: '',
-                    city: '',
+                    requirements: '',
+                    city: body.city,
                     sphere: '',
-                    link: ''
+                    link: body.link
                 });
             });
     }
@@ -99,6 +100,7 @@ export default function Home() {
                                 <TableCell align="right">{row.deadline}</TableCell>
                                 <TableCell align="right">{row.format}</TableCell>
                                 <TableCell align="right">{row.signatures}</TableCell>
+                                <TableCell align="right">{row.requirements}</TableCell>
                                 <TableCell align="right">{row.city}</TableCell>
                                 <TableCell align="right">{row.sphere}</TableCell>
                                 <TableCell align="right">{row.link}</TableCell>
