@@ -48,7 +48,9 @@ export type Link = {
 @Injectable()
 export class NlpParsingService {
     async parseHTML(contestLink: string): Promise<ParsedPage> {
-        const browser = await puppeteer.launch();
+        const browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
         const page = await browser.newPage();
         await page.setDefaultNavigationTimeout(0);
         await page.goto(contestLink);

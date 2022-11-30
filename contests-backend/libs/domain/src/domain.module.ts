@@ -4,7 +4,7 @@ import { entities } from './entities';
 
 @Module({
     imports: [
-        MongooseModule.forRoot('mongodb://root:root@localhost:27017', {
+        MongooseModule.forRoot(process.env.MONGODB_URL, {
             connectionName: 'contests',
         }),
         MongooseModule.forFeature(
@@ -17,7 +17,7 @@ import { entities } from './entities';
     ],
     providers: [],
     exports: [
-        MongooseModule.forRoot('mongodb://root:root@localhost:27017', {
+        MongooseModule.forRoot(process.env.MONGODB_URL, {
             connectionName: 'contests',
         }),
         MongooseModule.forFeature(
