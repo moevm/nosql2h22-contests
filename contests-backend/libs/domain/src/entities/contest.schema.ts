@@ -1,8 +1,22 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Link } from '@libs/nlp-parsing';
 
 export type ContestDocument = Contest & Document;
+
+export enum FORMAT{
+    ONLINE = 'Онлайн',
+    OFFLINE = 'Оффлайн'
+}
+
+export class Requirements {
+    ageMax: number;
+
+    ageMin: number;
+
+    citizenship: string[];
+
+    academicDegree: string[];
+}
 
 @Schema()
 export class Contest {
@@ -12,26 +26,30 @@ export class Contest {
 
     @Prop({ required: true, unique: true })
     link: string;
-    @Prop({ required: true })
+
+    @Prop({ required: false })
     name: string;
-    @Prop({ required: true })
+
+    @Prop({ required: false })
+    dateFrom: Date;
+
+    @Prop({ required: false })
+    dateTo: Date;
+
+    @Prop({ required: false })
+    prize: string[];
+
+    @Prop({ required: false })
+    reporting: string[];
+
+    @Prop({ required: false })
+    format: FORMAT;
+
+    @Prop({ required: false })
+    requirements: Requirements[];
+
+    @Prop({ required: false })
     city: string;
-    @Prop({ required: false })
-    documents?: string;
-    @Prop({ required: false })
-    contacts?: string;
-    @Prop({ required: false })
-    format?: string;
-    @Prop({ required: false })
-    participants?: string;
-    @Prop({ required: false })
-    prizes?: string;
-    @Prop({ required: false })
-    purposes?: string;
-    @Prop({ required: false })
-    time?: string;
-    @Prop({ required: false })
-    links?: Link[];
 }
 
 export const ContestSchema = SchemaFactory.createForClass(Contest);

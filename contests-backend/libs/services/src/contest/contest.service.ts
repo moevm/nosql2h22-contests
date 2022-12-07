@@ -3,6 +3,22 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Contest, ContestDocument } from '@libs/domain';
 import { NlpParsingService, ParsedContent } from '@libs/nlp-parsing';
+import * as moment from 'moment/moment';
+
+const MONTHS = [
+    'января',
+    'февраля',
+    'марта',
+    'апреля',
+    'мая',
+    'июня',
+    'июля',
+    'августа',
+    'сентября',
+    'октября',
+    'ноября',
+    'декабря',
+];
 
 @Injectable()
 export class ContestService {
@@ -60,11 +76,32 @@ export class ContestService {
             await this.nlpParsingService.parseHTML(path);
         const parsedContent: ParsedContent =
             await this.nlpParsingService.parseContent(content);
+        const dateData = time
+            .matchAll(
+                /с (\d\d?) ([а-яА-Я]+) (\d{4}) г\. до (\d\d?) ([а-яА-Я]+) (\d{4}) г\. \(включительно\)/g,
+            )
+            .next();
+
         return new this.contestModel({
             link: path,
             city: 'Санкт-Петербург',
             name,
-            time,
+            dateFrom: moment
+                .utc(
+                    `${dateData[1]} ${
+                        MONTHS.findIndex((x) => x === dateData[2]) + 1
+                    } ${dateData[3]}`,
+                    'DD MM YYYY',
+                )
+                .toDate(),
+            dateTo: moment
+                .utc(
+                    `${dateData[4]} ${
+                        MONTHS.findIndex((x) => x === dateData[5]) + 1
+                    } ${dateData[6]}`,
+                    'DD MM YYYY',
+                )
+                .toDate(),
             links,
             ...parsedContent,
         }).save();
