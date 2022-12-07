@@ -81,7 +81,7 @@ export class ContestService {
         count: number,
         sort: SortOrder = 'desc',
     ): Promise<PopularCity[]> {
-        const pipelines: any[] = [
+        const data = this.contestModel.aggregate([
             { $match: { city: { $exists: true } } },
             {
                 $group: {
@@ -89,13 +89,12 @@ export class ContestService {
                     count: { $count: {} },
                 },
             },
-        ];
-        if (count > 0) pipelines.push({ $limit: count});
-        const data = await this.contestModel
-            .aggregate(pipelines)
-            .sort({ count: sort })
-            .exec();
-        return data.map((x) => ({ city: x._id.city, count: x.count }));
+        ]);
+        if (count > 0) data.sort({ count: sort });
+        return (await data.limit(count).exec()).map((x) => ({
+            city: x._id.city,
+            count: x.count,
+        }));
     }
 
     async saveAll(contests: Contest[]): Promise<boolean> {
