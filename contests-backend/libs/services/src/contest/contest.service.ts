@@ -125,8 +125,21 @@ export class ContestService {
             .matchAll(
                 /с (\d\d?) ([а-яА-Я]+) (\d{4}) г\. до (\d\d?) ([а-яА-Я]+) (\d{4}) г\. \(включительно\)/g,
             )
-            .next();
-
+            .next().value;
+        console.log(dateData);
+        console.log(`${dateData[1]} ${
+            MONTHS.findIndex((x) => x === dateData[2]) + 1
+        } ${dateData[3]}`)
+        console.log(
+            moment
+                .utc(
+                    `${dateData[1]} ${
+                        MONTHS.findIndex((x) => x === dateData[2]) + 1
+                    } ${dateData[3]}`,
+                    'DD MM YYYY',
+                )
+                .toDate(),
+        );
         return new this.contestModel({
             link: path,
             city: 'Санкт-Петербург',
