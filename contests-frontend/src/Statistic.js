@@ -18,18 +18,18 @@ import {Bar, BarChart, Legend, Tooltip, XAxis, YAxis} from "recharts";
 
 export default function Statistic() {
     const [firstRequest, setFirstRequest] = React.useState(true);
-
+    const [graphType, setGraphType] = React.useState("Не выбрано");
     const [graphData, setGraphData] = React.useState([]);
     const [statistics, setStatistics] = React.useState({
         "Популярнейший город": "",
         "Редчайший город": "",
-        // ...
     });
 
     function getPopularCities() {
-        axios.get(`http://localhost:3000/contests/mostPopularCities`, {
+        axios.get(`http://localhost:3000/contests/cityCount`, {
             params: {
-                count: 5
+                count: 0,
+                sort: "desc"
             }
         }).then(res => setGraphData(res.data));
     }
@@ -37,7 +37,6 @@ export default function Statistic() {
     const graphStatistics = {
         "Не выбрано": () => setGraphData([]),
         "Популярные города": getPopularCities,
-        // ...
     };
 
     getStatistics();
@@ -45,17 +44,19 @@ export default function Statistic() {
     function getStatistics() {
         if (firstRequest) {
             setFirstRequest(false);
-            axios.get(`http://localhost:3000/contests/mostPopularCities`, {
+            axios.get(`http://localhost:3000/contests/cityCount`, {
                 params: {
-                    count: 1
+                    count: 1,
+                    sort: "desc"
                 }
-            }).then(res => updateStatisticField("Популярнейший город", res.data.name));
+            }).then(res => updateStatisticField("Популярнейший город", res.data[0].city));
 
-            axios.get(`http://localhost:3000/contests/leastPopularCities`, {
+            axios.get(`http://localhost:3000/contests/cityCount`, {
                 params: {
-                    count: 1
+                    count: 1,
+                    sort: "asc"
                 }
-            }).then(res => updateStatisticField("Редчайший город", res.data.name));
+            }).then(res => updateStatisticField("Редчайший город", res.data[0].city));
         }
     }
 
@@ -94,8 +95,11 @@ export default function Statistic() {
                 <Select labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         label="Тип"
-                        value="Не выбрано"
-                        onChange={action => graphStatistics[action.target.value]()}>
+                        value={graphType}
+                        onChange={action => {
+                            setGraphType(action.target.value);
+                            graphStatistics[action.target.value]();
+                        }}>
                     {Object.entries(graphStatistics).map(entry => (
                         <MenuItem key={entry[0]} value={entry[0]}>{entry[0]}</MenuItem>
                     ))}
@@ -103,11 +107,11 @@ export default function Statistic() {
             </FormControl>
             <p/>
             <BarChart width={1000} height={250} data={graphData}>
-                <XAxis dataKey="name"/>
+                <XAxis dataKey="city"/>
                 <YAxis/>
                 <Tooltip/>
                 <Legend/>
-                <Bar dataKey="value" fill="#8884d8"/>
+                <Bar dataKey="count" fill="#8884d8"/>
             </BarChart>
         </Box>
     )

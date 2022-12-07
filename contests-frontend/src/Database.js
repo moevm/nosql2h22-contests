@@ -47,12 +47,9 @@ export default function Database() {
         'Статус',
         'Награда',
         'Отчетность',
-        'Податься до',
         'Формат',
-        'Подписи',
         'Требования',
         'Город',
-        'Сфера',
         'Ссылка',
         'Ссылки на документы'
     ];
@@ -64,9 +61,7 @@ export default function Database() {
                 count: rows,
             }
         })
-            .then(res => {
-                updateDataWithNewDto(res.data);
-            })
+            .then(res => updateDataWithNewDto(res.data))
             .catch(reason => createErrorAlert(reason.response.data.message));
     }
 
@@ -97,14 +92,11 @@ export default function Database() {
                 entry.time,
                 entry.time,
                 '',
-                entry.prizes,
-                '',
-                '',
-                '',
-                '',
-                '',
+                entry.prize,
+                entry.reporting,
+                entry.format,
+                entry.requirements,
                 entry.city,
-                '',
                 entry.link,
                 entry.links.map(li => `${li.text}:\n${li.link}`).join('\n')])
         });
