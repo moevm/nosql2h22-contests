@@ -9,7 +9,6 @@ import * as moment from 'moment';
 import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import mongoose, { Model } from 'mongoose';
-import fa from '@faker-js/faker/locales/fa';
 
 faker.setLocale('ru');
 moment.locale('ru');
