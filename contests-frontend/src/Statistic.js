@@ -13,33 +13,59 @@ import {
     TableRow
 } from "@mui/material";
 import React from 'react';
-import {Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis} from 'recharts';
+import axios from "axios";
+import {BarChart} from "@mui/icons-material";
+import {Bar, CartesianGrid, Legend, Tooltip, XAxis, YAxis} from "recharts";
 
 
-class StatisticField {
-    constructor(name, value) {
-        this.name = name;
-        this.value = value;
+export default function Statistic() {
+    const [firstRequest, setFirstRequest] = React.useState(true);
+
+    const [statistics, setStatistics] = React.useState({
+        "Популярнейший город": "",
+        "Редчайший город": "",
+        // ...
+    });
+    const [graphData, setGraphData] = React.useState([]);
+
+    function getPopularCities() {
+        axios.get(`http://localhost:3000/contests/mostPopularCities`, {
+            params: {
+                count: 5
+            }
+        }).then(res => setGraphData(res.data));
     }
-}
 
-const data = [
-    {
-        name: 'Москва',
-        value: 2,
-    },
-    {
-        name: 'Таганрог',
-        value: 1,
-    },
-];
+    const graphStatistics = {
+        "Популярные города": getPopularCities,
+        // ...
+    };
 
-const statistics = [
-    new StatisticField("Популярнейший город", "Москва"),
-    new StatisticField("Редчайший город", "Таганрог")
-]
+    getStatistics();
 
-export default function Statistic(props) {
+    function getStatistics() {
+        if (firstRequest) {
+            setFirstRequest(false);
+            axios.get(`http://localhost:3000/contests/mostPopularCities`, {
+                params: {
+                    count: 1
+                }
+            }).then(res => updateStatisticField("Популярнейший город", res.data.name));
+
+            axios.get(`http://localhost:3000/contests/leastPopularCities`, {
+                params: {
+                    count: 1
+                }
+            }).then(res => updateStatisticField("Редчайший город", res.data.name));
+        }
+    }
+
+    function updateStatisticField(key, value) {
+        const updatedStatistic = {...statistics}
+        updatedStatistic[key] = value;
+        setStatistics(updatedStatistic);
+    }
+
     return (
         <Box>
             <TableContainer component={Paper}>
@@ -50,16 +76,14 @@ export default function Statistic(props) {
                             <TableCell align="right"/>
                         </TableRow>
                     </TableHead>
-
-
                     <TableBody>
-                        {statistics.map(statistic => (
-                            <TableRow key={statistic.name}
+                        {Object.entries(statistics).map(entry => (
+                            <TableRow key={entry[0]}
                                       sx={{'&:last-child td, &:last-child th': {border: 0}}}>
                                 <TableCell component="th" scope="row">
-                                    {statistic.name}
+                                    {entry[0]}
                                 </TableCell>
-                                <TableCell align="right">{statistic.value}</TableCell>
+                                <TableCell align="right">{entry[1]}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -67,30 +91,16 @@ export default function Statistic(props) {
             </TableContainer>
             <p/>
             <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">Y</InputLabel>
+                <InputLabel id="demo-simple-select-label">Тип</InputLabel>
                 <Select labelId="demo-simple-select-label"
                         id="demo-simple-select"
-                        value={"Количество конкурсов"}
-                        label="Y"
-                        onChange={() => console.log("kek")}>
-                    <MenuItem value={"Количество конкурсов"}>Количество конкурсов</MenuItem>
-                    <MenuItem value={20}>Twenty</MenuItem>
+                        label="Тип"
+                        onChange={action => graphStatistics[action.target.value]()}>
+                    {Object.entries(graphStatistics).map(stat => (<MenuItem value={stat[0]}>{stat[0]}</MenuItem>))}
                 </Select>
             </FormControl>
             <p/>
-            <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">X</InputLabel>
-                <Select labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={"Место проведения"}
-                        label="X"
-                        onChange={() => console.log("kek")}>
-                    <MenuItem value={"Место проведения"}>Место проведения</MenuItem>
-                    <MenuItem value={20}>Twenty</MenuItem>
-                </Select>
-            </FormControl>
-            <p/>
-            <BarChart width={1000} height={250} data={data}>
+            <BarChart width={1000} height={250} data={graphData}>
                 <CartesianGrid strokeDasharray="3 3"/>
                 <XAxis dataKey="name"/>
                 <YAxis/>
