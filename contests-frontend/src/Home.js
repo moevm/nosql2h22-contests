@@ -53,6 +53,19 @@ export default function Home() {
         'Ссылки на документы',
     ];
 
+    function resolveStatus(dateFrom, dateTo) {
+        const now = new Date();
+        if (now >= dateFrom && now <= dateTo) {
+            return "В процессе";
+        }
+
+        if (now < dateFrom) {
+            return "Не начат";
+        }
+
+        return "Окончен";
+    }
+
     function onLinkPushed() {
         axios.post('http://localhost:3000/contests/parse', {link: link})
             .then(res => {
@@ -62,11 +75,11 @@ export default function Home() {
                     name: body.name,
                     dateFrom: body.dateFrom,
                     dateTo: body.dateTo,
-                    status: '',
-                    prize: body.prize,
-                    reporting: body.reporting,
+                    status: resolveStatus(body.dateFrom, body.dateTo),
+                    prize: body.prize.join(' \n'),
+                    reporting: body.reporting.join(' \n'),
                     format: body.format,
-                    requirements: body.requirements,
+                    requirements: body.requirements.map(req => `Ученая степень: ${req.academicDegree.join(' \n')},\n Гражданство: ${req.citizenship.join(' \n')}, \n Мин. возраст: ${req.ageMin}, \n Макс. возраст: ${req.ageMax}`).join('\n'),
                     city: body.city,
                     link: body.link,
                     links: body.links.map(li => `${li.text}:\n${li.link}`).join('\n'),

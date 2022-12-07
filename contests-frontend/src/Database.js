@@ -84,6 +84,19 @@ export default function Database() {
         }).catch(reason => createErrorAlert(reason.response.data.message));
     }
 
+    function resolveStatus(dateFrom, dateTo) {
+        const now = new Date();
+        if (now >= dateFrom && now <= dateTo) {
+            return "В процессе";
+        }
+
+        if (now < dateFrom) {
+            return "Не начат";
+        }
+
+        return "Окончен";
+    }
+
     function updateDataWithNewDto(dto) {
         const newData = [];
         dto.forEach(entry => {
@@ -91,11 +104,11 @@ export default function Database() {
                 entry.name,
                 entry.dateFrom,
                 entry.dateTo,
-                '',
-                entry.prize,
-                entry.reporting,
+                resolveStatus(entry.dateFrom, entry.dateTo),
+                entry.prize.join(' \n'),
+                entry.reporting.join(' \n'),
                 entry.format,
-                entry.requirements,
+                entry.requirements.map(req => `Ученая степень: ${req.academicDegree.join(' \n')},\n Гражданство: ${req.citizenship.join(' \n')}, \n Мин. возраст: ${req.ageMin}, \n Макс. возраст: ${req.ageMax}`).join('\n'),
                 entry.city,
                 entry.link,
                 entry.links.map(li => `${li.text}:\n${li.link}`).join('\n')])
