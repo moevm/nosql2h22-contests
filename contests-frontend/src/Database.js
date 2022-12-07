@@ -1,18 +1,18 @@
-import React, {useReducer} from "react";
+import React from "react";
 
 import MUIDataTable from "mui-datatables";
 
 import {Alert, Box, Button, Input} from "@mui/material";
 import axios from "axios";
+import Statistic from "./Statistic";
 
 export default function Database() {
     const [data, setData] = React.useState([]);
     const [firstRequest, setFirstRequest] = React.useState(true);
     const [allCount, setAllCount] = React.useState(0);
     const [file, setFile] = React.useState(undefined);
-    const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
-    const [successAlerts] = React.useState([]);
-    const [errorAlerts] = React.useState([]);
+    const [successAlerts, setSuccessAlerts] = React.useState([]);
+    const [errorAlerts, setErrorAlerts] = React.useState([]);
 
     function updateFirstData() {
         if (firstRequest) {
@@ -22,13 +22,22 @@ export default function Database() {
         }
     }
 
-    function createAlert(message, alerts) {
-        alerts.push(message);
+    function createSuccessAlert(message) {
+        setSuccessAlerts([...successAlerts, message]);
         setTimeout(() => {
-            alerts.shift();
-            forceUpdate();
-        }, 2000)
-        forceUpdate();
+            const copy = [...successAlerts];
+            copy.shift();
+            setSuccessAlerts(copy);
+        }, 5000)
+    }
+
+    function createErrorAlert(message) {
+        setErrorAlerts([...errorAlerts, message]);
+        setTimeout(() => {
+            const copy = [...errorAlerts];
+            copy.shift();
+            setErrorAlerts(copy);
+        }, 5000)
     }
 
     const columns = [
@@ -58,13 +67,13 @@ export default function Database() {
             .then(res => {
                 updateDataWithNewDto(res.data);
             })
-            .catch(reason => createAlert(reason.response.data.message, errorAlerts));
+            .catch(reason => createErrorAlert(reason.response.data.message));
     }
 
     function updateCount() {
         axios.get('http://localhost:3000/contests/count')
             .then(res => setAllCount(res.data))
-            .catch(reason => createAlert(reason.response.data.message, errorAlerts));
+            .catch(reason => createErrorAlert(reason.response.data.message));
     }
 
     function search(searchText) {
@@ -74,12 +83,10 @@ export default function Database() {
                 page: 0,
                 count: 0,
             }
-        })
-            .then(res => {
-                updateDataWithNewDto(res.data);
-                createAlert("Успех", successAlerts);
-            })
-            .catch(reason => createAlert(reason.response.data.message, errorAlerts));
+        }).then(res => {
+            updateDataWithNewDto(res.data);
+            createSuccessAlert("Успех");
+        }).catch(reason => createErrorAlert(reason.response.data.message));
     }
 
     function updateDataWithNewDto(dto) {
@@ -115,8 +122,8 @@ export default function Database() {
             formData.append("file", file);
 
             axios.post('http://localhost:3000/contests/import', formData)
-                .then(res => createAlert("Успех", successAlerts))
-                .catch(reason => createAlert(reason.response.data.message, errorAlerts));
+                .then(() => createSuccessAlert("Успех"))
+                .catch(reason => createErrorAlert(reason.response.data.message));
         }
     }
 
@@ -158,10 +165,13 @@ export default function Database() {
             <MUIDataTable title={'Contests'} data={data} columns={columns} options={options}/>
             <p/>
             <Button variant="contained" href="http://localhost:3000/contests/export">Экспорт</Button>
+            <p/>
             <div>
                 <Input type="file" onChange={onFileChange}/>
                 <Button onClick={onFileUpload}>Upload</Button>
             </div>
+            <p/>
+            <Statistic/>
         </Box>
     );
 }
