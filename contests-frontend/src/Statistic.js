@@ -14,19 +14,17 @@ import {
 } from "@mui/material";
 import React from 'react';
 import axios from "axios";
-import {BarChart} from "@mui/icons-material";
-import {Bar, CartesianGrid, Legend, Tooltip, XAxis, YAxis} from "recharts";
-
+import {Bar, BarChart, Legend, Tooltip, XAxis, YAxis} from "recharts";
 
 export default function Statistic() {
     const [firstRequest, setFirstRequest] = React.useState(true);
 
+    const [graphData, setGraphData] = React.useState([]);
     const [statistics, setStatistics] = React.useState({
         "Популярнейший город": "",
         "Редчайший город": "",
         // ...
     });
-    const [graphData, setGraphData] = React.useState([]);
 
     function getPopularCities() {
         axios.get(`http://localhost:3000/contests/mostPopularCities`, {
@@ -37,6 +35,7 @@ export default function Statistic() {
     }
 
     const graphStatistics = {
+        "Не выбрано": () => setGraphData([]),
         "Популярные города": getPopularCities,
         // ...
     };
@@ -95,13 +94,15 @@ export default function Statistic() {
                 <Select labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         label="Тип"
+                        value="Не выбрано"
                         onChange={action => graphStatistics[action.target.value]()}>
-                    {Object.entries(graphStatistics).map(stat => (<MenuItem value={stat[0]}>{stat[0]}</MenuItem>))}
+                    {Object.entries(graphStatistics).map(entry => (
+                        <MenuItem key={entry[0]} value={entry[0]}>{entry[0]}</MenuItem>
+                    ))}
                 </Select>
             </FormControl>
             <p/>
             <BarChart width={1000} height={250} data={graphData}>
-                <CartesianGrid strokeDasharray="3 3"/>
                 <XAxis dataKey="name"/>
                 <YAxis/>
                 <Tooltip/>

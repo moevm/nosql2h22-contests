@@ -155,7 +155,6 @@ export default function Database() {
                     console.log('action not handled.');
             }
         },
-
     };
 
     return (
