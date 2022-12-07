@@ -118,5 +118,4 @@ function getRandomElem(arr) {
         });
         contestModel.collection.insertOne(contest);
     }
-    console.log(await contestModel.find({}).exec());
 })();
