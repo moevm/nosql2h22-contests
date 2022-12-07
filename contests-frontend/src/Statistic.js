@@ -46,24 +46,16 @@ export default function Statistic() {
             setFirstRequest(false);
             axios.get(`http://localhost:3000/contests/cityCount`, {
                 params: {
-                    count: 1,
+                    count: 0,
                     sort: "desc"
                 }
-            }).then(res => updateStatisticField("Популярнейший город", res.data[0].city));
-
-            axios.get(`http://localhost:3000/contests/cityCount`, {
-                params: {
-                    count: 1,
-                    sort: "asc"
-                }
-            }).then(res => updateStatisticField("Редчайший город", res.data[0].city));
+            }).then(res => {
+                const updatedStatistic = {...statistics}
+                updatedStatistic["Популярнейший город"] = res.data[0].city;
+                updatedStatistic["Редчайший город"] = res.data[res.data.length - 1].city;
+                setStatistics(updatedStatistic);
+            });
         }
-    }
-
-    function updateStatisticField(key, value) {
-        const updatedStatistic = {...statistics}
-        updatedStatistic[key] = value;
-        setStatistics(updatedStatistic);
     }
 
     return (
