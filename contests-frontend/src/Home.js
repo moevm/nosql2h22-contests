@@ -107,20 +107,7 @@ export default function Home() {
                         <TableBody>
                             <TableRow key={row.name}
                                       sx={{'&:last-child td, &:last-child th': {border: 0}}}>
-                                <TableCell align="right">{row.name}</TableCell>
-                                <TableCell align="right">{row.dateFrom}</TableCell>
-                                <TableCell align="right">{row.dateTo}</TableCell>
-                                <TableCell align="right">{row.status}</TableCell>
-                                <TableCell align="right">{row.prize}</TableCell>
-                                <TableCell align="right">{row.reporting}</TableCell>
-                                <TableCell align="right">{row.deadline}</TableCell>
-                                <TableCell align="right">{row.format}</TableCell>
-                                <TableCell align="right">{row.signatures}</TableCell>
-                                <TableCell align="right">{row.requirements}</TableCell>
-                                <TableCell align="right">{row.city}</TableCell>
-                                <TableCell align="right">{row.sphere}</TableCell>
-                                <TableCell align="right">{row.link}</TableCell>
-                                <TableCell align="right">{row.links}</TableCell>
+                                {Object.entries(row).map(entry => <TableCell align="right">{entry[1]}</TableCell>)}
                             </TableRow>
                         </TableBody>
                     </Table>
