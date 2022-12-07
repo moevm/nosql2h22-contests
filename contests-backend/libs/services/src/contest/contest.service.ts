@@ -90,7 +90,7 @@ export class ContestService {
                 },
             },
         ];
-        if (count > 0) pipelines.push();
+        if (count > 0) pipelines.push({ $limit: count});
         const data = await this.contestModel
             .aggregate(pipelines)
             .sort({ count: sort })
