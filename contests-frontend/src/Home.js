@@ -60,8 +60,8 @@ export default function Home() {
                 const body = res.data
                 setRow({
                     name: body.name,
-                    dateFrom: body.time,
-                    dateTo: body.time,
+                    dateFrom: body.dateFrom,
+                    dateTo: body.dateTo,
                     status: '',
                     prize: body.prize,
                     reporting: body.reporting,

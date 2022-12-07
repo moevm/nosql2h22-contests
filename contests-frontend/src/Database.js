@@ -89,8 +89,8 @@ export default function Database() {
         dto.forEach(entry => {
             newData.push([
                 entry.name,
-                entry.time,
-                entry.time,
+                entry.dateFrom,
+                entry.dateTo,
                 '',
                 entry.prize,
                 entry.reporting,
