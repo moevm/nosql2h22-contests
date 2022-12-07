@@ -1,11 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { Link } from '@libs/nlp-parsing';
 
 export type ContestDocument = Contest & Document;
 
-export enum FORMAT{
+export enum FORMAT {
     ONLINE = 'Онлайн',
-    OFFLINE = 'Оффлайн'
+    OFFLINE = 'Оффлайн',
 }
 
 export class Requirements {
@@ -50,6 +51,9 @@ export class Contest {
 
     @Prop({ required: false })
     city: string;
+
+    @Prop({ required: false })
+    links: Link[];
 }
 
 export const ContestSchema = SchemaFactory.createForClass(Contest);

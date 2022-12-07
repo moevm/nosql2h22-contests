@@ -19,6 +19,7 @@ import { Contest } from '@libs/domain';
 import { NlpParsingService } from '@libs/nlp-parsing';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import { SortOrder } from 'mongoose';
 
 @Controller('contests')
 export class ContestController {
@@ -54,9 +55,17 @@ export class ContestController {
         );
     }
 
+    @Get('cityCount')
+    async fieldCount(
+        @Query('count', ParseIntPipe) count: number,
+        @Query('sort') sort: SortOrder,
+    ) {
+        return await this.contestService.popularCities(count, sort);
+    }
 
-    async getMostPopulatCities(count: number){
-
+    @Get('formatStat')
+    async formatStat(@Query('sort') sort: SortOrder) {
+        return await this.contestService.formatStat(sort);
     }
 
     @Get()

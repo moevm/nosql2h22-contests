@@ -9,6 +9,7 @@ import * as moment from 'moment';
 import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import mongoose, { Model } from 'mongoose';
+import { Link } from '../libs/nlp-parsing/src/nlp-parsing.service';
 
 faker.setLocale('ru');
 moment.locale('ru');
@@ -87,6 +88,10 @@ function getRandomElem(arr) {
         for (let i = 0; i < getRandomInt(1, 4); i++)
             reporting.push(getRandomElem(REPORTINGS));
 
+        const links: Link[] = [];
+        for (let i = 0; i < getRandomInt(1, 3); i++)
+            links.push({ text: 'Файл', link: faker.image.cats() });
+
         const requirements: Requirements[] = [];
         for (let i = 0; i < getRandomInt(1, 3); i++) {
             const ageMax = getRandomInt(7, 31);
@@ -115,7 +120,9 @@ function getRandomElem(arr) {
             format: getRandomInt(0, 2) ? FORMAT.ONLINE : FORMAT.OFFLINE,
             requirements,
             city: faker.address.city(),
+            links,
         });
         await contestModel.collection.insertOne(contest);
     }
+    process.exit();
 })();

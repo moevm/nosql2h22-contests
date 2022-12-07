@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, SortOrder } from 'mongoose';
 import { Contest, ContestDocument } from '@libs/domain';
 import { NlpParsingService, ParsedContent } from '@libs/nlp-parsing';
 import * as moment from 'moment/moment';
@@ -19,6 +19,12 @@ const MONTHS = [
     'ноября',
     'декабря',
 ];
+
+export class PopularCity {
+    city: string;
+
+    count: number;
+}
 
 @Injectable()
 export class ContestService {
@@ -54,6 +60,44 @@ export class ContestService {
         return await this.contestModel.collection.count();
     }
 
+    async formatStat(sort: SortOrder = 'desc'): Promise<any> {
+        const pipelines: any[] = [
+            { $match: { format: { $exists: true } } },
+            {
+                $group: {
+                    _id: { format: '$format' },
+                    count: { $count: {} },
+                },
+            },
+        ];
+        const data = await this.contestModel
+            .aggregate(pipelines)
+            .sort({ count: sort })
+            .exec();
+        return data.map((x) => ({ format: x._id.format, count: x.count }));
+    }
+
+    async popularCities(
+        count: number,
+        sort: SortOrder = 'desc',
+    ): Promise<PopularCity[]> {
+        const pipelines: any[] = [
+            { $match: { city: { $exists: true } } },
+            {
+                $group: {
+                    _id: { city: '$city' },
+                    count: { $count: {} },
+                },
+            },
+        ];
+        if (count > 0) pipelines.push();
+        const data = await this.contestModel
+            .aggregate(pipelines)
+            .sort({ count: sort })
+            .exec();
+        return data.map((x) => ({ city: x._id.city, count: x.count }));
+    }
+
     async saveAll(contests: Contest[]): Promise<boolean> {
         for (const contest of contests) {
             await this.contestModel.collection.updateOne(
@@ -74,8 +118,8 @@ export class ContestService {
         if (contest) return contest;
         const { content, links, time, name } =
             await this.nlpParsingService.parseHTML(path);
-        const parsedContent: ParsedContent =
-            await this.nlpParsingService.parseContent(content);
+        // const parsedContent: ParsedContent =
+        //     await this.nlpParsingService.parseContent(content);
         const dateData = time
             .matchAll(
                 /с (\d\d?) ([а-яА-Я]+) (\d{4}) г\. до (\d\d?) ([а-яА-Я]+) (\d{4}) г\. \(включительно\)/g,
@@ -103,7 +147,7 @@ export class ContestService {
                 )
                 .toDate(),
             links,
-            ...parsedContent,
+            // ...parsedContent,
         }).save();
         //return contest.save();
     }
