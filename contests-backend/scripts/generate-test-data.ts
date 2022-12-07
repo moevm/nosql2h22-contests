@@ -9,6 +9,7 @@ import * as moment from 'moment';
 import { v4 as uuid } from 'uuid';
 import { faker } from '@faker-js/faker';
 import mongoose, { Model } from 'mongoose';
+import fa from '@faker-js/faker/locales/fa';
 
 faker.setLocale('ru');
 moment.locale('ru');
@@ -68,7 +69,6 @@ function getRandomElem(arr) {
         ContestSchema,
     );
     const count = process.env.TEST_DATA_COUNT || 10;
-    const now = moment.utc().toDate();
 
     for (let i = 0; i < count; i++) {
         const dateFrom: Date = faker.date.between(
@@ -115,7 +115,8 @@ function getRandomElem(arr) {
             reporting,
             format: getRandomInt(0, 2) ? FORMAT.ONLINE : FORMAT.OFFLINE,
             requirements,
+            city: faker.address.city(),
         });
-        contestModel.collection.insertOne(contest);
+        await contestModel.collection.insertOne(contest);
     }
 })();
