@@ -60,7 +60,7 @@ function getRandomElem(arr) {
     return arr[getRandomInt(0, arr.length)];
 }
 
-(async () => {
+export async function generateTestData(): Promise<void> {
     await mongoose.connect(
         process.env.MONGODB_URL || 'mongodb://root:root@localhost:27017/',
     );
@@ -124,5 +124,4 @@ function getRandomElem(arr) {
         });
         await contestModel.collection.insertOne(contest);
     }
-    process.exit();
-})();
+}

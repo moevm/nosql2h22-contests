@@ -12,6 +12,7 @@ services:
     build: ./contests-backend
     environment:
       MONGODB_URL: mongodb://root:root@mongo:27017/
+      RUN_SCRIPT: true
     ports:
       - "3000:3000"
     depends_on:
