@@ -18,6 +18,8 @@ COPY . .
 
 RUN npm install
 
+EXPOSE 3000
+
 CMD ["google-chrome-stable"]
 
 CMD ["npm", "start", "contests-backend"]
