@@ -101,7 +101,7 @@ export default function Home() {
 
     return (
         <div className="App">
-            <Box sx={{width: 1200, maxWidth: '80%', margin: "auto"}} className="Upload">
+            <Box sx={{width: 1400, maxWidth: '80%', margin: "auto"}} className="Upload">
                 <TextField fullWidth id="standard-basic" label="Ссылка" variant="outlined" onChange={newLink}/>
                 <p/>
                 <Button variant="contained" onClick={onLinkPushed}>Загрузить</Button>
@@ -112,15 +112,16 @@ export default function Home() {
                     <Table sx={{minWidth: 650}} aria-label="simple table">
                         <TableHead>
                             <TableRow>
-                                <TableCell align="center">{"Название"}</TableCell>
-                                <TableCell align="center">{"Значение"}</TableCell>
+                                <TableCell align="left">{"Атрибут"}</TableCell>
+                                <TableCell align="left">{"Значение"}</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {Object.entries(row).map(entry => <TableRow key={entry[0]}
-                                                                        sx={{'&:last-child td, &:last-child th': {border: 0}}}>
-                                <TableCell align={"center"}> {columns[entry[0]]} </TableCell>
-                                <TableCell align={"center"}> {entry[1]} </TableCell>
+                            {Object.entries(row).map((entry, index) => <TableRow key={index}
+                                                                                 sx={{'&:last-child td, &:last-child th': {border: 0}}}>
+                                <TableCell sx={{width: 160}}> {columns[index]} </TableCell>
+                                <TableCell><TextField multiline fullWidth={true} defaultValue={entry[1]}
+                                                      onChange={event => entry[1] = event.target}/> </TableCell>
                             </TableRow>)}
 
                         </TableBody>
