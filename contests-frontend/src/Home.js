@@ -90,6 +90,14 @@ export default function Home() {
             .catch(reason => createAlert(reason.response.data.message, errorAlerts));
     }
 
+    function onUpdatePushed() {
+        axios.put('http://localhost:3000/contests/upsert', row)
+            .then(res => {
+                createAlert("Успех", successAlerts);
+            })
+            .catch(reason => createAlert(reason.response.data.message, errorAlerts));
+    }
+
     function createAlert(message, alerts) {
         alerts.push(message);
         setTimeout(() => {
@@ -121,12 +129,19 @@ export default function Home() {
                                                                                  sx={{'&:last-child td, &:last-child th': {border: 0}}}>
                                 <TableCell sx={{width: 160}}> {columns[index]} </TableCell>
                                 <TableCell><TextField multiline fullWidth={true} defaultValue={entry[1]}
-                                                      onChange={event => entry[1] = event.target}/> </TableCell>
+                                                      onChange={event => {
+                                                          const newRow = {...row};
+                                                          newRow[entry[0]] = event.target;
+                                                          setRow(newRow);
+                                                      }}/> </TableCell>
                             </TableRow>)}
 
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <p/>
+                <Button variant="contained" onClick={onUpdatePushed}>Обновить данные</Button>
+                <p/>
             </Box>
         </div>
     );
