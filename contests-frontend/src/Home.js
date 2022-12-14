@@ -124,13 +124,13 @@ export default function Home() {
                                                                                  sx={{'&:last-child td, &:last-child th': {border: 0}}}>
                                 <TableCell sx={{width: 160}}> {columns[index]} </TableCell>
                                 <TableCell>
-                                    <TextField multiline fullWidth={true} defaultValue={entry[1]}
+                                    <TextField multiline fullWidth={true} value={entry[1]}
                                                onChange={event => {
                                                    console.log(event.target.value)
                                                    const newRow = {...row};
                                                    newRow[entry[0]] = event.target.value;
                                                    setRow(newRow);
-                                               }} > {entry[1]} </TextField>
+                                               }} />
                                 </TableCell>
                             </TableRow>)}
 
@@ -138,7 +138,7 @@ export default function Home() {
                     </Table>
                 </TableContainer>
                 <p/>
-                <Button variant="contained" onClick={onUpdatePushed}>Обновить данные</Button>
+                <Button variant="contained" onClick={onUpdatePushed}>Обновить или добавить конкурс</Button>
                 <p/>
             </Box>
         </div>
