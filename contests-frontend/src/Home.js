@@ -69,7 +69,6 @@ export default function Home() {
     function onLinkPushed() {
         axios.post('http://localhost:3000/contests/parse', {link: link})
             .then(res => {
-                console.log(res)
                 const body = res.data
                 setRow({
                     name: body.name,
