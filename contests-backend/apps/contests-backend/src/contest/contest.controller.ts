@@ -29,6 +29,7 @@ export class ContestController {
     @Inject(ContestService) private readonly contestService: ContestService;
 
     @Post('import')
+    @HttpCode(HttpStatus.OK)
     @UseInterceptors(FileInterceptor('file'))
     async import(@UploadedFile() file: Express.Multer.File): Promise<boolean> {
         if (file.mimetype !== 'application/json')
@@ -48,6 +49,7 @@ export class ContestController {
     @Header('Content-Type', 'application/json')
     @Header('Content-Disposition', 'attachment; filename="data.json"')
     @Get('export')
+    @HttpCode(HttpStatus.OK)
     async getFile(): Promise<StreamableFile> {
         return new StreamableFile(
             Buffer.from(
@@ -57,6 +59,7 @@ export class ContestController {
     }
 
     @Get('cityCount')
+    @HttpCode(HttpStatus.OK)
     async fieldCount(
         @Query('count', ParseIntPipe) count: number,
         @Query('sort') sort: SortOrder,
@@ -65,6 +68,7 @@ export class ContestController {
     }
 
     @Get('formatStat')
+    @HttpCode(HttpStatus.OK)
     async formatStat(@Query('sort') sort: SortOrder) {
         return await this.contestService.formatStat(sort);
     }
@@ -76,6 +80,7 @@ export class ContestController {
     }
 
     @Get()
+    @HttpCode(HttpStatus.OK)
     async getContests(
         @Query('count', ParseIntPipe) count: number,
         @Query('page', ParseIntPipe) page: number,
@@ -85,11 +90,13 @@ export class ContestController {
     }
 
     @Get('count')
+    @HttpCode(HttpStatus.OK)
     async contestsCount(): Promise<number> {
         return await this.contestService.count();
     }
 
     @Post('parse')
+    @HttpCode(HttpStatus.OK)
     async createContest(@Body('link') link: string): Promise<Contest> {
         if (!link.match(/http:\/\/knvsh.gov.spb.ru\/contests\/view\/.*/g))
             throw new HttpException(
@@ -100,11 +107,13 @@ export class ContestController {
     }
 
     @Delete('delete')
+    @HttpCode(HttpStatus.OK)
     async deleteContest(@Body('id') id) {
         return await this.contestService.deleteById(id);
     }
 
     @Delete('deleteAll')
+    @HttpCode(HttpStatus.OK)
     async deleteAll() {
         return await this.contestService.deleteAll();
     }
