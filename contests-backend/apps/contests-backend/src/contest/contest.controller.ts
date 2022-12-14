@@ -98,11 +98,6 @@ export class ContestController {
     @Post('parse')
     @HttpCode(HttpStatus.OK)
     async createContest(@Body('link') link: string): Promise<Contest> {
-        if (!link.match(/http:\/\/knvsh.gov.spb.ru\/contests\/view\/.*/g))
-            throw new HttpException(
-                'Ссылка должна начинаться с: http://knvsh.gov.spb.ru/contests/view/',
-                HttpStatus.BAD_REQUEST,
-            );
         return await this.contestService.contestFromPage(link);
     }
 
