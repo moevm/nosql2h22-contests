@@ -3,7 +3,7 @@ import {
     Controller,
     Delete,
     Get,
-    Header,
+    Header, HttpCode,
     HttpException,
     HttpStatus,
     Inject,
@@ -70,6 +70,7 @@ export class ContestController {
     }
 
     @Put('upsert')
+    @HttpCode(HttpStatus.OK)
     async updateContest(@Body() dto: UpdateContestDto): Promise<void>{
         await this.contestService.upsertContest(dto);
     }
