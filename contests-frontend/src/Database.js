@@ -105,14 +105,15 @@ export default function Database() {
                 entry.dateFrom,
                 entry.dateTo,
                 resolveStatus(entry.dateFrom, entry.dateTo),
-                entry.prize.join(' \n'),
-                entry.reporting.join(' \n'),
+                entry.prize,
+                entry.reporting,
                 entry.format,
-                entry.requirements.map(req => `Ученая степень: ${req.academicDegree.join(' \n')},\n Гражданство: ${req.citizenship.join(' \n')}, \n Мин. возраст: ${req.ageMin}, \n Макс. возраст: ${req.ageMax}`).join('\n'),
+                entry.requirements,
                 entry.city,
                 entry.link,
-                entry.links.map(li => `${li.text}:\n${li.link}`).join('\n')])
-        });
+                entry.links,
+            ]);
+        })
         setData(newData);
     }
 

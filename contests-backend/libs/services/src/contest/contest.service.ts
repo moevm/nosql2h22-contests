@@ -149,7 +149,7 @@ export class ContestService {
                     'DD MM YYYY',
                 )
                 .toDate(),
-            links,
+            links: links.map((li) => `${li.text}:\n${li.link}`).join('\n'),
             // ...parsedContent,
         }).save();
         //return contest.save();

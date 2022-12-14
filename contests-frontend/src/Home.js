@@ -26,11 +26,9 @@ export default function Home() {
         status: '',
         prize: '',
         reporting: '',
-        deadline: '',
         format: '',
-        signatures: '',
+        requirements: '',
         city: '',
-        sphere: '',
         link: '',
         links: '',
     });
@@ -50,16 +48,16 @@ export default function Home() {
         'Требования',
         'Город',
         'Ссылка',
-        'Ссылки на документы',
+        'Ссылки на документы'
     ];
 
     function resolveStatus(dateFrom, dateTo) {
         const now = new Date();
-        if (now >= dateFrom && now <= dateTo) {
+        if (now >= new Date(dateFrom) && now <= new Date(dateTo)) {
             return "В процессе";
         }
 
-        if (now < dateFrom) {
+        if (now < new Date(dateFrom)) {
             return "Не начат";
         }
 
@@ -71,19 +69,19 @@ export default function Home() {
             .then(res => {
                 const body = res.data
                 setRow({
-                    name: body.name,
-                    dateFrom: body.dateFrom,
-                    dateTo: body.dateTo,
+                    name: body.name || '',
+                    dateFrom: body.dateFrom || '',
+                    dateTo: body.dateTo || '',
                     status: resolveStatus(body.dateFrom, body.dateTo),
-                    prize: body.prize.join(' \n'),
-                    reporting: body.reporting.join(' \n'),
-                    format: body.format,
-                    requirements: body.requirements.map(req => `Ученая степень: ${req.academicDegree.join(' \n')},\n Гражданство: ${req.citizenship.join(' \n')}, \n Мин. возраст: ${req.ageMin}, \n Макс. возраст: ${req.ageMax}`).join('\n'),
-                    city: body.city,
-                    link: body.link,
-                    links: body.links.map(li => `${li.text}:\n${li.link}`).join('\n'),
+                    prize: body.prize || '',
+                    reporting: body.reporting || '',
+                    format: body.format || '',
+                    requirements: body.requirements || '',
+                    city: body.city || '',
+                    link: body.link || '',
+                    links: body.links || '',
                 });
-
+                console.log(row)
                 createAlert("Успех", successAlerts);
             })
             .catch(reason => createAlert(reason.response.data.message, errorAlerts));
@@ -91,9 +89,7 @@ export default function Home() {
 
     function onUpdatePushed() {
         axios.put('http://localhost:3000/contests/upsert', row)
-            .then(res => {
-                createAlert("Успех", successAlerts);
-            })
+            .then(() => createAlert("Успех", successAlerts))
             .catch(reason => createAlert(reason.response.data.message, errorAlerts));
     }
 
@@ -127,12 +123,15 @@ export default function Home() {
                             {Object.entries(row).map((entry, index) => <TableRow key={index}
                                                                                  sx={{'&:last-child td, &:last-child th': {border: 0}}}>
                                 <TableCell sx={{width: 160}}> {columns[index]} </TableCell>
-                                <TableCell><TextField multiline fullWidth={true} defaultValue={entry[1]}
-                                                      onChange={event => {
-                                                          const newRow = {...row};
-                                                          newRow[entry[0]] = event.target;
-                                                          setRow(newRow);
-                                                      }}/> </TableCell>
+                                <TableCell>
+                                    <TextField multiline fullWidth={true} defaultValue={entry[1]}
+                                               onChange={event => {
+                                                   console.log(event.target.value)
+                                                   const newRow = {...row};
+                                                   newRow[entry[0]] = event.target.value;
+                                                   setRow(newRow);
+                                               }} > {entry[1]} </TextField>
+                                </TableCell>
                             </TableRow>)}
 
                         </TableBody>
