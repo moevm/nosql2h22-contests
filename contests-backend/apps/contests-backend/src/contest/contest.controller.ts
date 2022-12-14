@@ -8,7 +8,7 @@ import {
     HttpStatus,
     Inject,
     ParseIntPipe,
-    Post,
+    Post, Put,
     Query,
     StreamableFile,
     UploadedFile,
@@ -20,6 +20,7 @@ import { NlpParsingService } from '@libs/nlp-parsing';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { SortOrder } from 'mongoose';
+import { UpdateContestDto } from '../../../../libs/domain/src/dto/update-contest.dto';
 
 @Controller('contests')
 export class ContestController {
@@ -66,6 +67,11 @@ export class ContestController {
     @Get('formatStat')
     async formatStat(@Query('sort') sort: SortOrder) {
         return await this.contestService.formatStat(sort);
+    }
+
+    @Put('upsert')
+    async updateContest(@Body() dto: UpdateContestDto): Promise<void>{
+        await this.contestService.upsertContest(dto);
     }
 
     @Get()
