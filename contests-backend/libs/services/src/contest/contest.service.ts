@@ -4,6 +4,7 @@ import { Model, SortOrder } from 'mongoose';
 import { Contest, ContestDocument } from '@libs/domain';
 import { NlpParsingService, ParsedContent } from '@libs/nlp-parsing';
 import * as moment from 'moment/moment';
+import { UpdateContestDto } from '../../../domain/src/dto/update-contest.dto';
 
 const MONTHS = [
     'января',
@@ -99,16 +100,19 @@ export class ContestService {
         }));
     }
 
+    async upsertContest(dto: UpdateContestDto): Promise<void> {
+        await this.contestModel.collection.updateOne(
+            { link: dto.link },
+            { $set: dto },
+            {
+                upsert: true,
+            },
+        );
+    }
+
     async saveAll(contests: Contest[]): Promise<boolean> {
-        for (const contest of contests) {
-            await this.contestModel.collection.updateOne(
-                { link: contest.link },
-                { $set: contest },
-                {
-                    upsert: true,
-                },
-            );
-        }
+        for (const contest of contests)
+            await this.upsertContest(contest);
         return true;
     }
 
@@ -126,20 +130,6 @@ export class ContestService {
                 /с (\d\d?) ([а-яА-Я]+) (\d{4}) г\. до (\d\d?) ([а-яА-Я]+) (\d{4}) г\. \(включительно\)/g,
             )
             .next().value;
-        console.log(dateData);
-        console.log(`${dateData[1]} ${
-            MONTHS.findIndex((x) => x === dateData[2]) + 1
-        } ${dateData[3]}`)
-        console.log(
-            moment
-                .utc(
-                    `${dateData[1]} ${
-                        MONTHS.findIndex((x) => x === dateData[2]) + 1
-                    } ${dateData[3]}`,
-                    'DD MM YYYY',
-                )
-                .toDate(),
-        );
         return new this.contestModel({
             link: path,
             city: 'Санкт-Петербург',
