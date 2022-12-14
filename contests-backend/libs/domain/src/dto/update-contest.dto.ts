@@ -6,10 +6,10 @@ export class UpdateContestDto {
     name?: string;
     dateFrom?: Date;
     dateTo?: Date;
-    prize?: string[];
-    reporting?: string[];
+    prize?: string;
+    reporting?: string;
     format?: FORMAT;
-    requirements?: Requirements[];
+    requirements?: string;
     city?: string;
-    links?: Link[];
+    links?: string;
 }

@@ -111,8 +111,7 @@ export class ContestService {
     }
 
     async saveAll(contests: Contest[]): Promise<boolean> {
-        for (const contest of contests)
-            await this.upsertContest(contest);
+        for (const contest of contests) await this.upsertContest(contest);
         return true;
     }
 

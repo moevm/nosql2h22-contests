@@ -38,22 +38,22 @@ export class Contest {
     dateTo: Date;
 
     @Prop({ required: false })
-    prize: string[];
+    prize: string;
 
     @Prop({ required: false })
-    reporting: string[];
+    reporting: string;
 
     @Prop({ required: false })
     format: FORMAT;
 
     @Prop({ required: false })
-    requirements: Requirements[];
+    requirements: string;
 
     @Prop({ required: false })
     city: string;
 
     @Prop({ required: false })
-    links: Link[];
+    links: string;
 }
 
 export const ContestSchema = SchemaFactory.createForClass(Contest);

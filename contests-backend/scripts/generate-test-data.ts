@@ -115,12 +115,23 @@ export async function generateTestData(): Promise<void> {
             name: getRandomElem(TITLES),
             dateTo,
             dateFrom,
-            prize,
-            reporting,
+            prize: prize.join(' \n'),
+            reporting: reporting.join(' \n'),
             format: getRandomInt(0, 2) ? FORMAT.ONLINE : FORMAT.OFFLINE,
-            requirements,
+            requirements: requirements
+                .map(
+                    (req) =>
+                        `Ученая степень: ${req.academicDegree.join(
+                            ' \n',
+                        )},\n Гражданство: ${req.citizenship.join(
+                            ' \n',
+                        )}, \n Мин. возраст: ${req.ageMin}, \n Макс. возраст: ${
+                            req.ageMax
+                        }`,
+                )
+                .join('\n'),
             city: faker.address.city(),
-            links,
+            links: links.map((li) => `${li.text}:\n${li.link}`).join('\n'),
         });
         await contestModel.collection.insertOne(contest);
     }
