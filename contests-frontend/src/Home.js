@@ -69,7 +69,6 @@ export default function Home() {
     function onLinkPushed() {
         axios.post('http://localhost:3000/contests/parse', {link: link})
             .then(res => {
-                console.log(res)
                 const body = res.data
                 setRow({
                     name: body.name,
@@ -90,6 +89,14 @@ export default function Home() {
             .catch(reason => createAlert(reason.response.data.message, errorAlerts));
     }
 
+    function onUpdatePushed() {
+        axios.put('http://localhost:3000/contests/upsert', row)
+            .then(res => {
+                createAlert("Успех", successAlerts);
+            })
+            .catch(reason => createAlert(reason.response.data.message, errorAlerts));
+    }
+
     function createAlert(message, alerts) {
         alerts.push(message);
         setTimeout(() => {
@@ -101,7 +108,7 @@ export default function Home() {
 
     return (
         <div className="App">
-            <Box sx={{width: 1200, maxWidth: '80%', margin: "auto"}} className="Upload">
+            <Box sx={{width: 1400, maxWidth: '80%', margin: "auto"}} className="Upload">
                 <TextField fullWidth id="standard-basic" label="Ссылка" variant="outlined" onChange={newLink}/>
                 <p/>
                 <Button variant="contained" onClick={onLinkPushed}>Загрузить</Button>
@@ -112,19 +119,28 @@ export default function Home() {
                     <Table sx={{minWidth: 650}} aria-label="simple table">
                         <TableHead>
                             <TableRow>
-                                {columns.map(col => (
-                                    <TableCell align="right">{col}</TableCell>
-                                ))}
+                                <TableCell align="left">{"Атрибут"}</TableCell>
+                                <TableCell align="left">{"Значение"}</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            <TableRow key={row.name}
-                                      sx={{'&:last-child td, &:last-child th': {border: 0}}}>
-                                {Object.entries(row).map(entry => <TableCell align="right">{entry[1]}</TableCell>)}
-                            </TableRow>
+                            {Object.entries(row).map((entry, index) => <TableRow key={index}
+                                                                                 sx={{'&:last-child td, &:last-child th': {border: 0}}}>
+                                <TableCell sx={{width: 160}}> {columns[index]} </TableCell>
+                                <TableCell><TextField multiline fullWidth={true} defaultValue={entry[1]}
+                                                      onChange={event => {
+                                                          const newRow = {...row};
+                                                          newRow[entry[0]] = event.target;
+                                                          setRow(newRow);
+                                                      }}/> </TableCell>
+                            </TableRow>)}
+
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <p/>
+                <Button variant="contained" onClick={onUpdatePushed}>Обновить данные</Button>
+                <p/>
             </Box>
         </div>
     );
