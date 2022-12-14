@@ -112,16 +112,17 @@ export default function Home() {
                     <Table sx={{minWidth: 650}} aria-label="simple table">
                         <TableHead>
                             <TableRow>
-                                {columns.map(col => (
-                                    <TableCell align="right">{col}</TableCell>
-                                ))}
+                                <TableCell align="center">{"Название"}</TableCell>
+                                <TableCell align="center">{"Значение"}</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            <TableRow key={row.name}
-                                      sx={{'&:last-child td, &:last-child th': {border: 0}}}>
-                                {Object.entries(row).map(entry => <TableCell align="right">{entry[1]}</TableCell>)}
-                            </TableRow>
+                            {Object.entries(row).map(entry => <TableRow key={entry[0]}
+                                                                        sx={{'&:last-child td, &:last-child th': {border: 0}}}>
+                                <TableCell align={"center"}> {columns[entry[0]]} </TableCell>
+                                <TableCell align={"center"}> {entry[1]} </TableCell>
+                            </TableRow>)}
+
                         </TableBody>
                     </Table>
                 </TableContainer>
