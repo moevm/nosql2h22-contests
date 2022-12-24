@@ -32,6 +32,10 @@ export default function Database() {
     }
 
     function createErrorAlert(message) {
+        if (message === "" || message == null) {
+            message = "Unknown error";
+        }
+        console.log(message);
         setErrorAlerts([...errorAlerts, message]);
         setTimeout(() => {
             const copy = [...errorAlerts];
