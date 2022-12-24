@@ -186,6 +186,9 @@ export default function Database() {
                         all: "Все",
                         title: "Фильтры",
                         reset: "Сбросить"
+                    },
+                    toolbar: {
+                        search: "Поиск"
                     }
                 }}}/>
             <p/>
