@@ -171,7 +171,7 @@ export default function Database() {
         <Box sx={{width: 1200, maxWidth: '80%', margin: "auto"}} className="Upload">
             {successAlerts.map(alert => (<Alert severity="success">{alert}</Alert>))}
             {errorAlerts.map(alert => (<Alert severity="error">{alert}</Alert>))}
-            <MUIDataTable title={'Contests'} data={data} columns={columns} options={{selectableRows: false}}/>
+            <MUIDataTable title={'Contests'} data={data} columns={columns} options={{selectableRows: false, download: false}}/>
             <p/>
             <Button variant="contained" href="http://localhost:3000/contests/export">Экспорт</Button>
             <p/>
