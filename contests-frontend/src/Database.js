@@ -181,6 +181,11 @@ export default function Database() {
                         previous: "Предыдущая страница",
                         rowsPerPage: "Строк на странице:",
                         displayRows: "из",
+                    },
+                    filter: {
+                        all: "Все",
+                        title: "Фильтры",
+                        reset: "Сбросить"
                     }
                 }}}/>
             <p/>
