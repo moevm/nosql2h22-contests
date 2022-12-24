@@ -58,6 +58,7 @@ export default function Database() {
         'Ссылки на документы'
     ];
 
+
     function updateData(page, rows) {
         axios.get('http://localhost:3000/contests/', {
             params: {
@@ -147,6 +148,32 @@ export default function Database() {
         jumpToPage: true,
         serverSide: true,
         count: allCount,
+        selectableRows: false,
+        download: false,
+        print: false,
+        viewColumns: false,
+        textLabels: {
+            body: {
+                noMatch: "К сожалению, подходящие записи не найдены",
+                toolTip: "Сортировать"
+            },
+            pagination: {
+                next: "Следующая страница",
+                previous: "Предыдущая страница",
+                rowsPerPage: "Строк на странице:",
+                displayRows: "из",
+                jumpToPage: "Открыть страницу:"
+            },
+            filter: {
+                all: "Все",
+                title: "Фильтры",
+                reset: "Сбросить"
+            },
+            toolbar: {
+                search: "Поиск",
+                filterTable: "Отфильтровать таблицу"
+            }
+        },
         onTableChange: (action, tableState) => {
             console.log(action, tableState);
 
@@ -171,27 +198,7 @@ export default function Database() {
         <Box sx={{width: 1200, maxWidth: '80%', margin: "auto"}} className="Upload">
             {successAlerts.map(alert => (<Alert severity="success">{alert}</Alert>))}
             {errorAlerts.map(alert => (<Alert severity="error">{alert}</Alert>))}
-            <MUIDataTable title={'Contests'} data={data} columns={columns} options={{selectableRows: false, download: false, print: false, viewColumns: false, textLabels: {
-                    body: {
-                        noMatch: 'К сожалению, подходящие записи не найдены',
-                        toolTip: 'Сортировать'
-                    },
-                    pagination: {
-                        next: "Следующая страница",
-                        previous: "Предыдущая страница",
-                        rowsPerPage: "Строк на странице:",
-                        displayRows: "из",
-                    },
-                    filter: {
-                        all: "Все",
-                        title: "Фильтры",
-                        reset: "Сбросить"
-                    },
-                    toolbar: {
-                        search: "Поиск",
-                        filterTable: "Отфильтровать таблицу"
-                    }
-                }}}/>
+            <MUIDataTable title={'Contests'} data={data} columns={columns} options={options}/>
             <p/>
             <Button variant="contained" href="http://localhost:3000/contests/export">Экспорт</Button>
             <p/>
