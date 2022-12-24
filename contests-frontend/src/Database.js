@@ -188,7 +188,8 @@ export default function Database() {
                         reset: "Сбросить"
                     },
                     toolbar: {
-                        search: "Поиск"
+                        search: "Поиск",
+                        filterTable: "Отфильтровать таблицу"
                     }
                 }}}/>
             <p/>
