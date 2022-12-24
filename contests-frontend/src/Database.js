@@ -174,6 +174,12 @@ export default function Database() {
             <MUIDataTable title={'Contests'} data={data} columns={columns} options={{selectableRows: false, download: false, print: false, viewColumns: false, textLabels: {
                     body: {
                         noMatch: 'К сожалению, подходящие записи не найдены',
+                    },
+                    pagination: {
+                        next: "Следующая страница",
+                        previous: "Предыдущая страница",
+                        rowsPerPage: "Строк на странице:",
+                        displayRows: "из",
                     }
                 }}}/>
             <p/>
